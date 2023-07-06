@@ -169,8 +169,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#references" id="toc-references" class="nav-link active" data-scroll-target="#references">References</a></li>
-  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction">1 Introduction</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">1 Introduction</a></li>
   <li><a href="#the-deterministic-approach" id="toc-the-deterministic-approach" class="nav-link" data-scroll-target="#the-deterministic-approach">2 The Deterministic Approach</a>
   <ul class="collapse">
   <li><a href="#the-model" id="toc-the-model" class="nav-link" data-scroll-target="#the-model">2.1 The Model</a></li>
@@ -184,6 +183,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#maximum-a-posteriori-estimation" id="toc-maximum-a-posteriori-estimation" class="nav-link" data-scroll-target="#maximum-a-posteriori-estimation">3.3 Maximum a posteriori Estimation</a></li>
   <li><a href="#bayesian-estimation" id="toc-bayesian-estimation" class="nav-link" data-scroll-target="#bayesian-estimation">3.4 Bayesian Estimation</a></li>
   </ul></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   <li><a href="#appendix" id="toc-appendix" class="nav-link" data-scroll-target="#appendix">Appendix</a>
   <ul class="collapse">
   <li><a href="#solving-for-the-parameters" id="toc-solving-for-the-parameters" class="nav-link" data-scroll-target="#solving-for-the-parameters">1 Solving for the parameters</a></li>
@@ -198,14 +198,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<section id="references" class="level1">
-<h1>References</h1>
-<p><a href="https://www.microsoft.com/en-us/research/uploads/prod/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf"><em>Pattern Recognition and Machine Learning</em></a>, <strong>Christopher M. Bishop</strong>, 2006</p>
-<p><a href="https://www.miketipping.com/papers/met-mlbayes.pdf"><em>Bayesian Inference: An Introduction to Principles and Practice in Machine Learning</em></a> <strong>Michael E. Tipping</strong>, 2004</p>
-</section>
 <section id="introduction" class="level1">
 <h1>1 Introduction</h1>
-<p>In a canonical scenario, we observe a real-valued variable <span class="math inline">\(t\)</span> and we’d like to <em>model</em> it. In other words, we’d like to create a process that could plausibly generate <span class="math inline">\(t\)</span> so that we can gather insights and make predictions. In this post, we consider the supervised setting where we model a target variable <span class="math inline">\(t\)</span> as a function of some observed input variable <span class="math inline">\(x\)</span>. To this end, we have gathered a set of <span class="math inline">\(N\)</span> realizations <span class="math inline">\(t_n\)</span> of <span class="math inline">\(t\)</span> together with a corresponding set of realizations <span class="math inline">\(x_n\)</span> of <span class="math inline">\(x\)</span>,</p>
+<p>In a canonical scenario, we observe a real-valued variable <span class="math inline">\(t\)</span> and we’d like to <em>model</em> it. Simply put, we’d like to describe a mathematical process describing the creation of <span class="math inline">\(t\)</span>. Once we build such a model we can gather insights and make predictions. In this post, we consider the supervised setting where we model a target variable <span class="math inline">\(t\)</span> as a function of some observed input variable <span class="math inline">\(x\)</span>. To this end, we have gathered a set of <span class="math inline">\(N\)</span> realizations <span class="math inline">\(t_n\)</span> of <span class="math inline">\(t\)</span> together with a corresponding set of realizations <span class="math inline">\(x_n\)</span> of <span class="math inline">\(x\)</span>,</p>
 <p><span class="math display">\[
 \pmb{\mathsf{x}} = \{x_1, x_2, ..., x_N\}^\intercal, \; \pmb{\mathsf{t}} = \{t_1, t_2, ..., t_N\}^\intercal.
 \]</span></p>
@@ -213,36 +208,37 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><span class="math display">\[
 y = \text{sin}(2 \pi x) + \mathcal{N}(0, \beta^{-1}), \tag{1}
 \]</span></p>
-<p>where we’ve denoted the variance as <span class="math inline">\(\beta^{-1}\)</span> so that <span class="math inline">\(\beta = 1 / \sigma^2\)</span> which we call the <em>precision</em>. The goal is to exploit our observed data <span class="math inline">\(\{ \pmb{\mathsf{x}}, \pmb{\mathsf{t}} \}\)</span> to model the <em>underlying generative function</em> <span class="math inline">\((1)\)</span> to then do something useful; for example, predict unseen values of <span class="math inline">\(t\)</span> for new values of <span class="math inline">\(x\)</span>.</p>
+<p>where we’ve denoted the variance as <span class="math inline">\(\beta^{-1}\)</span> so that <span class="math inline">\(\beta = 1 / \sigma^2\)</span> which we call the <em>precision</em>. The goal is to exploit our observed data <span class="math inline">\(\{ \pmb{\mathsf{x}}, \pmb{\mathsf{t}} \}\)</span> to create a model of the <em>underlying generative (and random) function</em> <span class="math inline">\((1)\)</span> to then do something useful – for example, predict an unobserved value of <span class="math inline">\(t\)</span> for a new observed value of <span class="math inline">\(x\)</span>. The type of modeling discussed in this post is referred to as <em>parametric</em> because, as shall be seen, we predefine a family of data-generating functions and then tune the <em>parameters</em> governing those functions according to how well the resultant function explains our observed dataset.</p>
 </section>
 <section id="the-deterministic-approach" class="level1">
 <h1>2 The Deterministic Approach</h1>
 <section id="the-model" class="level2">
 <h2 class="anchored" data-anchor-id="the-model">2.1 The Model</h2>
-<p>In the deterministic approach, we simply consider our target variable <span class="math inline">\(t\)</span> to be a parameterized function of the input variable <span class="math inline">\(x\)</span> and some unknown parameters <span class="math inline">\(\mathbf{w}\)</span>. In other words, we assume <span class="math inline">\(t\)</span> is the result of a non-random data-generating process which can be described by a function within the family of functions</p>
+<p>In the deterministic approach, we simply consider our target variable <span class="math inline">\(t\)</span> to be a parameterized function of (i) the input variable <span class="math inline">\(x\)</span> and (ii) some unknown parameters <span class="math inline">\(\mathbf{w}\)</span>. In other words, we assume <span class="math inline">\(t\)</span> is the result of a <em>non-random</em> data-generating process which can be described by a function within the family of functions</p>
 <p><span class="math display">\[
 y(x, \mathbf{w}) = w_0 + w_1x + w_2x^2 + \dots + w_Mx^M = \sum_{j=0}^M w_j x^j, \tag{2}
-\]</span> where <span class="math inline">\(M\)</span> is the order of the polynomial, and the polynomial coefficients <span class="math inline">\(w_0, ..., w_M\)</span> are collectively denoted by the vector <span class="math inline">\(\mathbf{w}\)</span>. Although <span class="math inline">\(y(x, \mathbf{w})\)</span> is a nonlinear function of <span class="math inline">\(x\)</span>, it is linear in the unknown parameters <span class="math inline">\(\mathbf{w}\)</span>. Functions that are linear in the unknown parameters have special properties and are called <em>linear models</em>.</p>
+\]</span></p>
+<p>where <span class="math inline">\(M\)</span> is the order of the polynomial, and the polynomial coefficients <span class="math inline">\(w_0, ..., w_M\)</span> are packaged in the vector <span class="math inline">\(\mathbf{w}\)</span>. Although <span class="math inline">\(y(x, \mathbf{w})\)</span> is a nonlinear function of <span class="math inline">\(x\)</span>, it is linear in the unknown parameters <span class="math inline">\(\mathbf{w}\)</span>. Functions that are linear in the unknown parameters have special properties and are called <em>linear models</em>.</p>
 </section>
 <section id="least-squares-estimation" class="level2">
 <h2 class="anchored" data-anchor-id="least-squares-estimation">2.2 Least-Squares Estimation</h2>
-<p>Although we’re trying to model the variable <span class="math inline">\(t\)</span> as a function of the input variable <span class="math inline">\(x\)</span>, we only have realizations of these variables which we’ve stored in <span class="math inline">\(\{\pmb{\mathsf{x}}, \pmb{\mathsf{t}}\}\)</span>. In the deterministic approach we try and find a setting of <span class="math inline">\(\mathbf{w}\)</span> that best agrees with our dataset <span class="math inline">\(\{\pmb{\mathsf{x}}, \pmb{\mathsf{t}}\}\)</span> by minimizing some notion of “error”. This error measures the misfit between a realized model – the function <span class="math inline">\(y(x, \mathbf{w})\)</span> for a given value of <span class="math inline">\(\mathbf{w}\)</span> – and the training data points. A widely used (and simple) error function is given by the sum-of-squares of the Euclidean distance between predictions <span class="math inline">\(y(x_n, \mathbf{w})\)</span> and the corresponding target values <span class="math inline">\(t_n\)</span>,</p>
+<p>Although we’re trying to model the variable <span class="math inline">\(t\)</span> as a function of the input variable <span class="math inline">\(x\)</span>, we only have realizations of these variables which we’ve stored in <span class="math inline">\(\{\pmb{\mathsf{x}}, \pmb{\mathsf{t}}\}\)</span>. In the deterministic approach we try and find a setting of <span class="math inline">\(\mathbf{w}\)</span> that best agrees with our dataset <span class="math inline">\(\{\pmb{\mathsf{x}}, \pmb{\mathsf{t}}\}\)</span> by minimizing some notion of “error”. This error measures the misfit between a realized model – the function <span class="math inline">\(y(x, \mathbf{w})\)</span> for a given setting of <span class="math inline">\(\mathbf{w}\)</span> – and the training data points. A widely used (and simple) error function is given by the sum-of-squares of the Euclidean distance between predictions <span class="math inline">\(y(x_n, \mathbf{w})\)</span> and the corresponding target values <span class="math inline">\(t_n\)</span>,</p>
 <p><span class="math display">\[
 E(\mathbf{w}) = \frac{1}{2} \sum_{n=1}^N \{y(x_n, \mathbf{w}) - t_n \}^2. \tag{3}
 \]</span></p>
-<p>The value of <span class="math inline">\(E(\mathbf{w})\)</span> is always non-negative and zero only when <span class="math inline">\(y(x, \mathbf{w})\)</span> passes exactly through every training point. Using the error function <span class="math inline">\((3)\)</span> in order to find the parameter values for <span class="math inline">\(\mathbf{w}\)</span> is called the method of <em>least-squares</em>. It is visualized in Figure 1.</p>
+<p>The value of <span class="math inline">\(E(\mathbf{w})\)</span> is always non-negative and is zero only when <span class="math inline">\(y(x, \mathbf{w})\)</span> passes exactly through every training point. Using the error function <span class="math inline">\((3)\)</span> in order to find the parameter values for <span class="math inline">\(\mathbf{w}\)</span> is called the method of <em>least-squares</em>. It is visualized in Figure 1.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="./img/sum_of_squares.png" class="img-fluid figure-img" width="400"></p>
 <figcaption class="figure-caption">Figure 1: The sum-of-squares error function in <span class="math inline">\((3)\)</span> is computed by taking one half the sum of the squared distances of each data point from the function <span class="math inline">\(y(x, \mathbf{w})\)</span>. These displacements are shown in red.</figcaption>
 </figure>
 </div>
-<p>Solving for <span class="math inline">\(\mathbf{w}\)</span> in this setting is fairly straightforward. Because the error function in <span class="math inline">\((3)\)</span> is a quadratic function of the parameters <span class="math inline">\(\mathbf{w}\)</span>, its derivative with respect to <span class="math inline">\(\mathbf{w}\)</span> will be linear in the elements of <span class="math inline">\(\mathbf{w}\)</span>. Therefore, the minimization of the error function has a unique solution, which we denote <span class="math inline">\(\mathbf{w}^*\)</span>. It can be found in closed form (Appendix <strong>1</strong>). We can then use <span class="math inline">\(y(x, \mathbf{w}^{*})\)</span> to predict new values of the target <span class="math inline">\(t\)</span> for new values of the input <span class="math inline">\(x\)</span>.</p>
+<p>Solving for <span class="math inline">\(\mathbf{w}\)</span> in this setting is fairly straightforward. Because the error function <span class="math inline">\((3)\)</span> is a quadratic function of the parameters <span class="math inline">\(\mathbf{w}\)</span>, its derivative with respect to <span class="math inline">\(\mathbf{w}\)</span> will be linear in the elements of <span class="math inline">\(\mathbf{w}\)</span>. Therefore, the minimization of the error function has a unique solution, which we denote <span class="math inline">\(\mathbf{w}^*\)</span>. It can be found in closed form (Appendix <strong>1</strong>). We can then use <span class="math inline">\(y(x, \mathbf{w}^{*})\)</span> to predict new values of the target <span class="math inline">\(t\)</span> for new observed values of the input <span class="math inline">\(x\)</span>.</p>
 </section>
 <section id="overfitting" class="level2">
 <h2 class="anchored" data-anchor-id="overfitting">2.3 Overfitting</h2>
 <p>There remains the need to choose the order <span class="math inline">\(M\)</span> of the polynomial, which falls within the realm of <em>model selection</em>. Choosing a large <span class="math inline">\(M\)</span> yields a flexible set of models for us to fit, but they are susceptible to <em>overfitting</em>. We will see later that the least-squares method represents a special case of <em>maximum likelihood</em>, and that overfitting can be viewed as a general symptom of maximum likelihood.</p>
-<p>For now, we can continue with a particular method to avoid overfitting – regularization. This involves adding a new term to the error function <span class="math inline">\((3)\)</span> that penalizes the parameters <span class="math inline">\(\mathbf{w}\)</span> for being too large. The simplest way to do so is to add the sum-of-squares of the weights. This leads to a new error function,</p>
+<p>For now, we can continue with a particular method to avoid overfitting – regularization. This involves adding a new term to the error function <span class="math inline">\((3)\)</span> that penalizes the parameters <span class="math inline">\(\mathbf{w}\)</span> for being too large. The simplest penalty term to add is the sum-of-squares of the <em>weights</em>. This leads to a new error function,</p>
 <p><span class="math display">\[
 \overset{\sim}{E} (\mathbf{w}) = \frac{1}{2} \sum_{n=1}^N \{y(x_n, \mathbf{w}) \}^2 + \frac{\lambda}{2} \lVert \mathbf{w} \rVert^2 \tag{4},
 \]</span></p>
@@ -254,14 +250,14 @@ E(\mathbf{w}) = \frac{1}{2} \sum_{n=1}^N \{y(x_n, \mathbf{w}) - t_n \}^2. \tag{3
 <section id="the-model-1" class="level2">
 <h2 class="anchored" data-anchor-id="the-model-1">3.1 The Model</h2>
 <p>In the deterministic approach we assumed <span class="math inline">\(t\)</span> to be the result of a deterministic function of <span class="math inline">\(x\)</span> and unknown parameters <span class="math inline">\(\mathbf{w}\)</span>. We now consider a <em>probabilistic</em> model so that we can express uncertainty in our predictions.</p>
-<p>In the deterministic approach, we considered <span class="math inline">\(t\)</span> as being the result of a process described by a parameterized function <span class="math inline">\(y(x, \mathbf{w})\)</span>. However, we may not want to make such a strong statement as saying <span class="math inline">\(t\)</span> <em>is exactly equal to</em> <span class="math inline">\(y(x, \mathbf{w})\)</span>. This could be because we think there is noise in the observations <span class="math inline">\(\pmb{\mathsf{t}}\)</span>, for example due to measurement error. To introduce such uncertainty, we need to place a distribution over the target variable <span class="math inline">\(t\)</span>. A sensible distributional assumption is to place a Gaussian distribution over <span class="math inline">\(t\)</span>, with its mean given by the parameterized function <span class="math inline">\(y(x, \mathbf{w})\)</span>, and its variance being fixed and unknown. This is visualized in Figure 2.</p>
+<p>We may not want to make such a strong statement as saying <span class="math inline">\(t\)</span> <em>is exactly</em> equal to <span class="math inline">\(y(x, \mathbf{w})\)</span> as we did in the previous section. This could be because we think there is noise in the observations <span class="math inline">\(\pmb{\mathsf{t}}\)</span>, for example due to measurement error. To articulate this assumed reality we need to place a distribution over the target variable <span class="math inline">\(t\)</span>. A sensible distributional assumption is to place a Gaussian distribution over <span class="math inline">\(t\)</span> with its mean given by the parameterized function <span class="math inline">\(y(x, \mathbf{w})\)</span> and its variance being fixed and unknown. This is visualized in Figure 2.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="./img/gaussian_noise_model.png" class="img-fluid figure-img" width="400"></p>
 <figcaption class="figure-caption">Figure 2: Illustration of a Gaussian conditional distribution over <span class="math inline">\(t\)</span> conditioned on <span class="math inline">\(x\)</span> where the mean of the distribution is given by some function of <span class="math inline">\(x\)</span>, and the variance is fixed</figcaption>
 </figure>
 </div>
-<p>To understand what we’re effectively saying when we create such a model, it is useful to re-emphasize and apply the <em>data-generating process</em> perspective. We can think of our model as describing a process that produces <span class="math inline">\(t\)</span> from a given <span class="math inline">\(x\)</span> and parameter <span class="math inline">\(\mathbf{w}\)</span>. Last section, this process was a deterministic function <span class="math inline">\(y(x, \mathbf{w})\)</span>. In this section, we extend the process by making the assumption that each <span class="math inline">\(t\)</span> is the result of <span class="math inline">\(y(x, \mathbf{w})\)</span> <em>and some additive uncertainty</em>, where that additive uncertainty takes the form of a zero-mean Gaussian distribution with unknown variance. This is to say that we are assuming, to have gotten a particular instance of <span class="math inline">\(t\)</span>:</p>
+<p>To understand what we’re effectively saying when we create such a model, it is useful to re-emphasize and apply the <em>data-generating process</em> perspective. We can think of our model as describing a process that produces <span class="math inline">\(t\)</span> from a given <span class="math inline">\(x\)</span> and parameter setting <span class="math inline">\(\mathbf{w}\)</span>. Last section, this process was a deterministic function <span class="math inline">\(y(x, \mathbf{w})\)</span>. In this section, we extend the process by positing that each <span class="math inline">\(t\)</span> is the result of <span class="math inline">\(y(x, \mathbf{w})\)</span> <em>and some additive uncertainty</em>, where that additive uncertainty takes the form of a zero-mean Gaussian distribution with unknown variance. This is to say that we are assuming, to have gotten a particular instance of <span class="math inline">\(t\)</span>:</p>
 <ul>
 <li>we are given an instance of <span class="math inline">\(x\)</span>,</li>
 <li>this instance of <span class="math inline">\(x\)</span> is then used to obtain the output of the parameterized function <span class="math inline">\(y(x, \mathbf{w})\)</span>,</li>
@@ -275,8 +271,8 @@ p(t|x, \mathbf{w}, \beta) &amp;= y(x, \mathbf{w}) + \mathcal{N}(0, \beta^{-1}) \
 </section>
 <section id="maximum-likelihood-estimation" class="level2">
 <h2 class="anchored" data-anchor-id="maximum-likelihood-estimation">3.2 Maximum Likelihood Estimation</h2>
-<p>In order to use the training dataset <span class="math inline">\(\{\pmb{\mathsf{x}}, \pmb{\mathsf{t}}\}\)</span> to determine the values of the unknown parameters <span class="math inline">\(\mathbf{w}\)</span> and <span class="math inline">\(\beta\)</span>, we will use a more general approach than error minimization – <em>maximum likelihood estimation</em>. As the name suggests, we will search for a setting of <span class="math inline">\(\mathbf{w}\)</span> and <span class="math inline">\(\beta\)</span> so that the likelihood of our observed data <span class="math inline">\(\{\pmb{\mathsf{t}}\}\)</span> is maximized. In other words, we’ve defined a data-generating process, and we want to find the setting of the parameters so that the likelihood of our process having <em>created</em> our observed <span class="math inline">\(\{\pmb{\mathsf{t}}\}\)</span> is maximized.</p>
-<p>In order to use maximum likelihood estimation, we need to have a <em>likelihood function</em>. A likelihood function is <em>derived</em> from an observation model. It can be thought of as an observation model being <em>applied</em> to a particular dataset. Assuming the data <span class="math inline">\(\{\pmb{\mathsf{t}}\}\)</span> were independently sampled from <span class="math inline">\((5)\)</span>, the likelihood function is the product of evaluating how consistent the model is with each datapoint <span class="math inline">\((t_n, x_n)\)</span>, and is evaluated for a particular setting of <span class="math inline">\(\mathbf{w}\)</span> and <span class="math inline">\(\beta\)</span>,</p>
+<p>In order to use the training dataset <span class="math inline">\(\{\pmb{\mathsf{x}}, \pmb{\mathsf{t}}\}\)</span> to determine the values of the unknown parameters <span class="math inline">\(\mathbf{w}\)</span> and <span class="math inline">\(\beta\)</span>, we will use a more general approach than error minimization – <em>maximum likelihood estimation</em>. As the name suggests, we will search for a setting of <span class="math inline">\(\mathbf{w}\)</span> and <span class="math inline">\(\beta\)</span> so that the likelihood of our observed data <span class="math inline">\(\pmb{\mathsf{t}}\)</span> is maximized. In other words, we’ve defined a data-generating process, and we want to find the setting of the parameters such that the probabilities of our process having <em>created</em> each observed <span class="math inline">\(t_n \in \pmb{\mathsf{t}}\)</span> from each <span class="math inline">\(x_n \in \pmb{\mathsf{x}}\)</span> are maximized. The likelihood measures the aggregation of all these point-wise probabilities.</p>
+<p>In order to use maximum likelihood estimation, we need to have a <em>likelihood function</em>. A likelihood function is <em>derived</em> from an observation model. It can be thought of as an observation model being <em>applied</em> to a particular dataset. Assuming the data <span class="math inline">\(\pmb{\mathsf{t}}\)</span> were independently sampled from <span class="math inline">\((5)\)</span>, the likelihood function is the product of evaluating how consistent the model is with each datapoint <span class="math inline">\((t_n, x_n)\)</span>, and is evaluated for a particular setting of <span class="math inline">\(\mathbf{w}\)</span> and <span class="math inline">\(\beta\)</span>,</p>
 <p><span class="math display">\[
 p(\pmb{\mathsf{t}}| \pmb{\mathsf{x}}, \mathbf{w}, \beta) = \prod_{n=1}^N \mathcal{N}(t_n|y(x_n, \mathbf{w}), \beta^{-1}). \tag{6}
 \]</span></p>
@@ -301,7 +297,7 @@ p(\pmb{\mathsf{t}}| \pmb{\mathsf{x}}, \mathbf{w}, \beta) = \prod_{n=1}^N \mathca
 <p><span class="math display">\[
 \frac{1}{\beta_{\text{ML}}} = \frac{1}{N} \sum_{n=1}^N \{y(x_n, \mathbf{w}_{\text{ML}}) - t_n \}^2. \tag{9}
 \]</span></p>
-<p>And so we see that the maximum likelihood procedure yields a variance <span class="math inline">\(\sigma^2\)</span> being the average squared deviation between the observed data points and the fitted <span class="math inline">\(y(x, \mathbf{w}_{\text{ML}})\)</span>.</p>
+<p>And so we see that the maximum likelihood procedure yields a variance <span class="math inline">\(\sigma^2\)</span> as equalling the average squared deviation between the observed data points and the function <span class="math inline">\(y(x, \mathbf{w}_{\text{ML}})\)</span>.</p>
 </section>
 <section id="maximum-likelihoods-predictive-distribution" class="level4">
 <h4 class="anchored" data-anchor-id="maximum-likelihoods-predictive-distribution"><strong>3.2.2 Maximum Likelihood’s predictive distribution</strong></h4>
@@ -317,9 +313,9 @@ p(t|x, \mathbf{w}_{\text{ML}}, \beta_{\text{ML}}) = \mathcal{N}(y(x, \mathbf{w}_
 <p><span class="math display">\[
 p(\mathbf{w}| \alpha) = \mathcal{N}(\mathbf{w} | \mathbf{0}, \alpha^{-1} \mathbf{I}) = \left( \frac{\alpha}{2 \pi} \right)^{(M+1) / 2} \text{exp} \left[- \frac{\alpha}{2} \mathbf{w}^{\intercal} \mathbf{w} \right], \tag{11}
 \]</span></p>
-<p>where <span class="math inline">\(\alpha\)</span> is the precision of the distribution and <span class="math inline">\(M+1\)</span> is the number of elements in <span class="math inline">\(\mathbf{w}\)</span> for an <span class="math inline">\(M\)</span> order polynomial function. Variables such as <span class="math inline">\(\alpha\)</span> are called <em>hyperparameters</em> since we have to choose them. Now that we have a prior, we can use Bayes’ theorem to yield a quantity proportional to the posterior,</p>
+<p>where <span class="math inline">\(\alpha\)</span> is the precision of the distribution and <span class="math inline">\(M+1\)</span> is the number of elements in <span class="math inline">\(\mathbf{w}\)</span> for an <span class="math inline">\(M\)</span> order polynomial function. Variables such as <span class="math inline">\(\alpha\)</span> are called <em>hyperparameters</em> since we have to choose their values. Now that we have a prior, we can use Bayes’ theorem to yield a quantity proportional to the posterior,</p>
 <p><span class="math display">\[
-\overbrace{ p(\mathbf{w}|\pmb{\mathsf{x}}, \pmb{\mathsf{t}}, \alpha, \beta) }^{\text{Posterior } p(\mathbf{w}|D)} \propto \underbrace{p(\pmb{\mathsf{t}}|\pmb{\mathsf{x}}, \mathbf{w}, \beta)}_{\text{Likelihood } p(D|\mathbf{w})} \overbrace{p(\mathbf{w}|\alpha)}^{\text{Prior }p(\mathbf{w})}, \tag{12}
+\overbrace{ p(\mathbf{w}|\pmb{\mathsf{x}}, \pmb{\mathsf{t}}, \alpha, \beta) }^{\text{Posterior } p(\mathbf{w}|D)} = \frac{\overbrace{p(\pmb{\mathsf{t}}|\pmb{\mathsf{x}}, \mathbf{w}, \beta)}^{\text{Likelihood } p(D|\mathbf{w})} \; \cdot \; \overbrace{p(\mathbf{w}|\alpha)}^{\text{Prior }p(\mathbf{w})}}{\underbrace{p(\pmb{\mathsf{t}}|\pmb{\mathsf{x}})}_{\text{Model Evidence } p(D)}} \propto \overbrace{p(\pmb{\mathsf{t}}|\pmb{\mathsf{x}}, \mathbf{w}, \beta)}^{\text{Likelihood } p(D|\mathbf{w})} \; \cdot \; \overbrace{p(\mathbf{w}|\alpha)}^{\text{Prior }p(\mathbf{w})}, \tag{12}
 \]</span></p>
 <p>where the proportion relation <span class="math inline">\(\propto\)</span> comes from the fact that the denominator of Bayes’ theorem, <span class="math inline">\(p(D) = p(\mathbf{t} | \mathbf{x})\)</span>, does not depend on <span class="math inline">\(\mathbf{w}\)</span>. Maximizing the right hand size of <span class="math inline">\((12)\)</span> with respect to <span class="math inline">\(\mathbf{w}\)</span> is equivalent to maximizing the posterior with respect to <span class="math inline">\(\mathbf{w}\)</span> due to the proportionality. By optimizing <span class="math inline">\(\mathbf{w}\)</span> to maximize the posterior, we are finding the most probable parameter values <span class="math inline">\(\mathbf{w}\)</span> considering our observed data and also our prior knowledge about <span class="math inline">\(\mathbf{w}\)</span> encapsulated in the (data independent) prior <span class="math inline">\(p(\mathbf{w} | \alpha)\)</span>. This yields a tradeoff between what we believed about <span class="math inline">\(\mathbf{w}\)</span> before seeing our data, and the <span class="math inline">\(\mathbf{w}\)</span> that best fits our data. This technique is referred to <em>maximum a posteriori estimation</em>, MAPE, or MAP.</p>
 <section id="maximum-a-posterioris-connection-to-least-squares" class="level4">
@@ -344,9 +340,9 @@ p(t|x, \mathbf{w}_{\text{MAP}}, \beta_{\text{MAP}}) = \mathcal{N}(y(x, \mathbf{w
 </section>
 <section id="bayesian-estimation" class="level2">
 <h2 class="anchored" data-anchor-id="bayesian-estimation">3.4 Bayesian Estimation</h2>
-<p>So far we have been making a point estimate of <span class="math inline">\(\mathbf{w}\)</span>, which does not yet amount to a Bayesin treatment. In a Bayesian treatment, we take into account all possible <span class="math inline">\(\mathbf{w}\)</span> that could have explained our data. To predict a new value of <span class="math inline">\(t\)</span> for a new <span class="math inline">\(x\)</span>, we marginalize over all possible settings of <span class="math inline">\(\mathbf{w}\)</span>, yielding the <em>posterior predictive distribution</em> or <em>Bayesian model average</em>. The goal of the Bayesian treatment is to compute the posterior over the weights <span class="math inline">\(p(\mathbf{w}|D)\)</span> which represents all possible settings of <span class="math inline">\(\mathbf{w}\)</span> given our observed data <span class="math inline">\(D\)</span>. To this end, we must use Bayes’ theorem:</p>
+<p>So far we have been making a point estimate of <span class="math inline">\(\mathbf{w}\)</span> which does not yet amount to a Bayesin treatment. In a Bayesian treatment, we take into account all possible <span class="math inline">\(\mathbf{w}\)</span> that could have explained our data. To predict a new value of <span class="math inline">\(t\)</span> for a new <span class="math inline">\(x\)</span>, we marginalize over all possible settings of <span class="math inline">\(\mathbf{w}\)</span>, yielding the <em>posterior predictive distribution</em> or <em>Bayesian model average</em>. The goal of the Bayesian treatment is to compute the posterior over the weights <span class="math inline">\(p(\mathbf{w}|D)\)</span> which represents all possible settings of <span class="math inline">\(\mathbf{w}\)</span> that give rise to models that can explain our observed data <span class="math inline">\(D\)</span>. To this end, we must use Bayes’ theorem:</p>
 <p><span class="math display">\[
-p(\mathbf{w}|D) = \frac{p(D|\mathbf{w})(p(\mathbf{w}))}{p(D)}. \tag{16}
+p(\mathbf{w}|D) = \frac{p(D|\mathbf{w})p(\mathbf{w})}{p(D)}. \tag{16}
 \]</span></p>
 <p>And for our regression problem in particular, <span class="math inline">\((16)\)</span> can be further specified as</p>
 <p><span class="math display">\[
@@ -357,39 +353,44 @@ p(\mathbf{w}|\pmb{\mathsf{t}}, \pmb{\mathsf{x}}, \alpha, \beta) = \frac{\overbra
 <p><span class="math display">\[
 p(\mathbf{w} \vert \pmb{\mathsf{x}}, \pmb{\mathsf{t}}) = \frac{p(\pmb{\mathsf{t}} \vert \pmb{\mathsf{x}}, \mathbf{w}) \cdot p(\mathbf{w})}{p(\pmb{\mathsf{t}} \vert \pmb{\mathsf{x}})}. \tag{18}
 \]</span></p>
-<p>So instead of computing a single <em>point estimate</em> of the weights (as we’ve done thus far); now, given the likelihood and the prior, we can compute the <em>posterior distribution</em> over <span class="math inline">\(\mathbf{w}\)</span> via Bayes’ rule. Computing the posterior can be facilitated by our choice of prior (a modeling choice) so that we can calculate the posterior in closed form. Those priors are referred to as <em>conjugate priors</em>. There are a number of other techniques used to instead <em>approximate</em> the posterior <span class="math inline">\(p(\mathbf{w}|\pmb{\mathsf{t}}, \pmb{\mathsf{x}})\)</span> when conjugacy is impossible. These include <em>variational inference</em> and <em>markov chain monte carlo sampling</em>. We save all these methods for another post and assume we’ve found the exact posterior.</p>
+<p>So instead of computing a single <em>point estimate</em> of the weights (as we’ve done thus far); now, given the likelihood and the prior, we can compute the <em>posterior distribution</em> over <span class="math inline">\(\mathbf{w}\)</span> via Bayes’ rule. Computing the posterior can be facilitated by our choice of prior (a modeling choice) so that we can calculate the posterior in closed form. Those priors are referred to as <em>conjugate priors</em>. There are a number of other techniques used to instead <em>approximate</em> the posterior <span class="math inline">\(p(\mathbf{w}|\pmb{\mathsf{t}}, \pmb{\mathsf{x}})\)</span> when conjugacy is impossible. These include <em>variational inference</em> and <em>markov chain monte carlo sampling</em>. Pretty much all posterior approximation methods introduce different ways to circumvent the explicit calculation of the denominator <span class="math inline">\(P(D) = p(\pmb{\mathsf{t}}|\pmb{\mathsf{x}})\)</span> which is intractable for any interesting model. We save all these methods for another post and assume we’ve found the exact posterior.</p>
 <section id="bayesians-predictive-distribution" class="level4">
 <h4 class="anchored" data-anchor-id="bayesians-predictive-distribution"><strong>3.4.1 Bayesian’s predictive distribution</strong></h4>
-<p>Once it is found, the posterior represents all possible settings of <span class="math inline">\(\mathbf{w}\)</span> that could explain our data. To incorporate this information into a <em>predictive distribution</em> so that we can predict new values of an unobserved <span class="math inline">\(t\)</span> given an unobserved <span class="math inline">\(x\)</span>, we marginalize over all possible settings of <span class="math inline">\(\mathbf{w}\)</span> like so:</p>
+<p>Once it is found, the posterior represents all possible settings of <span class="math inline">\(\mathbf{w}\)</span> in that they induce models that can explain our data. To incorporate this information into a <em>predictive distribution</em> so that we can predict new values of an unobserved <span class="math inline">\(t\)</span> given an unobserved <span class="math inline">\(x\)</span>, we marginalize over all possible settings of <span class="math inline">\(\mathbf{w}\)</span> like so:</p>
 <p><span class="math display">\[
 p(t|x, \pmb{\mathsf{x}}, \pmb{\mathsf{t}}) = \int p(t|x, \mathbf{w}) p(\mathbf{w}|\pmb{\mathsf{x}}, \pmb{\mathsf{t}}) \text{d}\mathbf{w}, \tag{19}
 \]</span></p>
 <p>where <span class="math inline">\(p(t|x, \mathbf{w})\)</span> is our model given by <span class="math inline">\((5)\)</span> omitting the dependence on <span class="math inline">\(\beta\)</span>, and <span class="math inline">\(p(\mathbf{w}|\pmb{\mathsf{x}}, \pmb{\mathsf{t}})\)</span> is the posterior over the weights <span class="math inline">\(\mathbf{w}\)</span>. In <span class="math inline">\((19)\)</span>,</p>
 <ul>
 <li>we look at a possible setting of <span class="math inline">\(\mathbf{w}\)</span> which we will denote <span class="math inline">\(\mathbf{w}_i\)</span> according to the posterior <span class="math inline">\(p(\mathbf{w}|\pmb{\mathsf{x}}, \pmb{\mathsf{t}})\)</span>. Placing <span class="math inline">\(\mathbf{w}_i\)</span> into our observation model <span class="math inline">\(p(t|x, \mathbf{w})\)</span> defines a “fitted model” <span class="math inline">\(p(t|x, \mathbf{w}_i)\)</span>.</li>
-<li>this “fitted” model is <em>multiplied</em> by the probability of that setting of <span class="math inline">\(\mathbf{w}_i\)</span> given by the posterior. In other words, the probability that <span class="math inline">\(p(t|x, \mathbf{w}_i)\)</span> having been used to generate our observed data <span class="math inline">\(\pmb{\mathsf{t}}\)</span> from the inputs <span class="math inline">\(\pmb{\mathsf{x}}\)</span>.</li>
+<li>this “fitted model” is <em>multiplied</em> by the probability of that setting of <span class="math inline">\(\mathbf{w}_i\)</span> given by the posterior. In other words, the probability that <span class="math inline">\(p(t|x, \mathbf{w}_i)\)</span> was used to generate our observed data <span class="math inline">\(\pmb{\mathsf{t}}\)</span> from the inputs <span class="math inline">\(\pmb{\mathsf{x}}\)</span>.</li>
 <li>we do this for every possible setting <span class="math inline">\(\mathbf{w}_i\)</span> according to the posterior and integrate.</li>
 </ul>
-<p>Thus, we are taking a weighted average of all possible “fitted” models, where the weights of each component are determined by how likely the setting of <span class="math inline">\(\mathbf{w}\)</span> isi according to its posterior.</p>
+<p>Thus, we are taking a weighted average of all possible “fitted models”, where the weights of each component are determined by how likely the setting of <span class="math inline">\(\mathbf{w}\)</span> is according to its posterior.</p>
 </section>
 <section id="analyzing-our-specific-predictive-distribution" class="level4">
 <h4 class="anchored" data-anchor-id="analyzing-our-specific-predictive-distribution"><strong>3.4.2 Analyzing our specific predictive distribution</strong></h4>
-<p>We will now alnalyze the specific form of <span class="math inline">\((19)\)</span> for our example problem. A consequence of us selecting a Gaussian likelihood and a Gaussian prior is that we can analytically compute the posterior; and it is Gaussian as well – an example of <em>conjugacy</em>. More so, we can analytically solve the integration in <span class="math inline">\((19)\)</span> to get a predictive distribution that itself is Gaussian. In fact, it takes on the more specific form</p>
+<p>We will now analyze the specific form of <span class="math inline">\((19)\)</span> for our example problem. A consequence of us selecting a Gaussian likelihood and a Gaussian prior is that we can analytically compute the posterior; and it is Gaussian as well – an example of <em>conjugacy</em>. More so, we can analytically solve the integration in <span class="math inline">\((19)\)</span> to get a predictive distribution that itself is Gaussian. In fact, it takes on the more specific form</p>
 <p><span class="math display">\[
 p(t|x, \pmb{\mathsf{x}}, \pmb{\mathsf{t}}) = \mathcal{N}(t|m(x), s^2(x)), \tag{20}
 \]</span></p>
 <p>where the mean and variance are given by</p>
 <p><span class="math display">\[\begin{align}
-&amp;m(x) = \beta \pmb{\phi}(x)^{\intercal} \mathbf{S} \sum_{n=1}^N \pmb{\phi}(x_n) t_n \tag{19} \\
-&amp; s^2(x) = \overbrace{\beta^{-1}}^{\text{noise}} + \underbrace{\pmb{\phi}(x)^\intercal \mathbf{S} \pmb{\phi}(x)}_{\text{Parameter Uncertainty}} \tag{20}
+&amp;m(x) = \beta \pmb{\phi}(x)^{\intercal} \mathbf{S} \sum_{n=1}^N \pmb{\phi}(x_n) t_n \tag{21} \\
+&amp; s^2(x) = \overbrace{\beta^{-1}}^{\text{noise}} + \underbrace{\pmb{\phi}(x)^\intercal \mathbf{S} \pmb{\phi}(x)}_{\text{Parameter Uncertainty}} \tag{22}
 \end{align}\]</span></p>
-<p>The <span class="math inline">\(\mathbf{S}\)</span> is a matrix, and is given by</p>
+<p><span class="math inline">\(\mathbf{S}\)</span> is a matrix, and is given by</p>
 <p><span class="math display">\[
 \mathbf{S}^{-1} = \alpha \mathbf{I} + \beta \sum_{n=1}^N \pmb{\phi}(x_n)  \pmb{\phi}(x),^\intercal \tag{21}
 \]</span></p>
-<p>where <span class="math inline">\(\mathbf{I}\)</span> is the unit matrix, and we have defined the vector <span class="math inline">\(\pmb{\phi}(x)\)</span> with elements <span class="math inline">\(\phi_i(x) = x^i\)</span> for <span class="math inline">\(i=0,...,M\)</span>. In the predictive distribution <span class="math inline">\((20)\)</span>, we now see that the variance depends on <span class="math inline">\(x\)</span>. It’s expansion is described by <span class="math inline">\((21)\)</span> and it contains two additive components. The first component, as was already expressed in the maximum likelihood predictive distribution <span class="math inline">\(\beta_{\text{ML}}\)</span>, is the noise on the target variables. The second component, which <em>has not</em> been expressed until now, arises from the <em>uncertainty in the parameters</em> <span class="math inline">\(\mathbf{w}\)</span> and is a consequence of treating <span class="math inline">\(\mathbf{w}\)</span> as a random variable – a mainstay of the Bayesian treatment.</p>
+<p>where <span class="math inline">\(\mathbf{I}\)</span> is the unit matrix, and we have defined the vector <span class="math inline">\(\pmb{\phi}(x)\)</span> with elements <span class="math inline">\(\phi_i(x) = x^i\)</span> for <span class="math inline">\(i=0,...,M\)</span>. In looking at the predictive distribution <span class="math inline">\((20)\)</span>, we now see that the variance depends on <span class="math inline">\(x\)</span>. This is <em>unlike</em> the maximum likelihood predictive distribution <span class="math inline">\((10)\)</span> and the maximum a posteriori predictive distribution <span class="math inline">\((15)\)</span> where the variance is fixed for any value of <span class="math inline">\(x\)</span>. It’s expansion is described by <span class="math inline">\((22)\)</span> and it contains two additive components. The first component, as was already expressed in the maximum likelihood predictive distribution <span class="math inline">\(\beta_{\text{ML}}\)</span>, is the noise on the target variables. The second component, which <em>has not</em> been expressed until now, arises from the <em>uncertainty in the parameters</em> <span class="math inline">\(\mathbf{w}\)</span> and is a consequence of treating <span class="math inline">\(\mathbf{w}\)</span> as a random variable – an artifact of the Bayesian treatment.</p>
 </section>
 </section>
+</section>
+<section id="references" class="level1">
+<h1>References</h1>
+<p><a href="https://www.microsoft.com/en-us/research/uploads/prod/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf"><em>Pattern Recognition and Machine Learning</em></a>, <strong>Christopher M. Bishop</strong>, 2006</p>
+<p><a href="https://www.miketipping.com/papers/met-mlbayes.pdf"><em>Bayesian Inference: An Introduction to Principles and Practice in Machine Learning</em></a> <strong>Michael E. Tipping</strong>, 2004</p>
 </section>
 <section id="appendix" class="level1">
 <h1>Appendix</h1>
@@ -449,48 +450,45 @@ p(t|x, \pmb{\mathsf{x}}, \pmb{\mathsf{t}}) = \mathcal{N}(t|m(x), s^2(x)), \tag{2
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">    Create the matrix A where A_ij = sum_n=1^N [x_n^(i+j)].</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    A <span class="op">=</span> np.zeros((M, M))</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># For each row</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># For each cell</span></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(M):</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        <span class="co"># For each column</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(M):</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Fill in A_ij = sum_n=1^N (x_n^(i+j))</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>            A[i][j] <span class="op">=</span> np.<span class="bu">sum</span>(xs<span class="op">**</span>(i<span class="op">+</span>j))</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> A</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> create_T(xs: np.array, ts: np.array, M: <span class="bu">int</span>) <span class="op">-&gt;</span> np.array:</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co">    Create the vector T where T_i = sum_n=1^N (x_n^i) t_n.</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    T <span class="op">=</span> np.zeros((M,))</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># For each row </span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(M):</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Fill in T_i = sum_n=1^N (x_n^i)t_n</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>        T[i] <span class="op">=</span> np.<span class="bu">sum</span>((xs <span class="op">**</span> i) <span class="op">*</span> ts)</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> T</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_w(xs: np.array, ts: np.array, M: <span class="bu">int</span>) <span class="op">-&gt;</span> np.array:</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="co">    Creates A and T using `create_A` and `create_T` and then solves </span></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="co">    the linear system of equations to get w.</span></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    A <span class="op">=</span> create_A(xs<span class="op">=</span>xs, M<span class="op">=</span>M)</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    T <span class="op">=</span> create_T(xs<span class="op">=</span>xs, ts<span class="op">=</span>ts, M<span class="op">=</span>M)</span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.linalg.solve(a<span class="op">=</span>A, b<span class="op">=</span>T)</span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> predict(w: np.array, x: np.array, M) <span class="op">-&gt;</span> np.array:</span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="co">    Feature expand the input x and then run the linear</span></span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="co">    transformation involving w,x to get predictions for target t.</span></span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Get [x**1, x**2, x**3 ... x**M] for each x</span></span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>    N <span class="op">=</span> x.shape[<span class="dv">0</span>]</span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>    powers <span class="op">=</span> np.arange(<span class="dv">0</span>, M )</span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>    powers_expanded <span class="op">=</span> np.tile(powers, (N,)).reshape(N, M)</span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>    xs_expanded <span class="op">=</span> x.repeat(M).reshape(N, M)</span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>    xs_powered <span class="op">=</span> np.power(xs_expanded, powers_expanded)</span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Apply w</span></span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> w <span class="op">@</span> xs_powered.T</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(M):</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>            A[i][j] <span class="op">=</span> np.<span class="bu">sum</span>(xs<span class="op">**</span>(i<span class="op">+</span>j))</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> A</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> create_T(xs: np.array, ts: np.array, M: <span class="bu">int</span>) <span class="op">-&gt;</span> np.array:</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co">    Create the vector T where T_i = sum_n=1^N (x_n^i) t_n.</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    T <span class="op">=</span> np.zeros((M,))</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># For each row </span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(M):</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>        T[i] <span class="op">=</span> np.<span class="bu">sum</span>((xs <span class="op">**</span> i) <span class="op">*</span> ts)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> T</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_w(xs: np.array, ts: np.array, M: <span class="bu">int</span>) <span class="op">-&gt;</span> np.array:</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co">    Creates A and T using `create_A` and `create_T` and then solves </span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="co">    the linear system of equations to get w.</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    A <span class="op">=</span> create_A(xs<span class="op">=</span>xs, M<span class="op">=</span>M)</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    T <span class="op">=</span> create_T(xs<span class="op">=</span>xs, ts<span class="op">=</span>ts, M<span class="op">=</span>M)</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.linalg.solve(a<span class="op">=</span>A, b<span class="op">=</span>T)</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> predict(w: np.array, x: np.array, M) <span class="op">-&gt;</span> np.array:</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="co">    Feature expand the input x and then run the linear</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="co">    transformation involving w,x to get predictions for target t.</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Get [x**1, x**2, x**3 ... x**M] for each x</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    N <span class="op">=</span> x.shape[<span class="dv">0</span>]</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    powers <span class="op">=</span> np.arange(<span class="dv">0</span>, M )</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    powers_expanded <span class="op">=</span> np.tile(powers, (N,)).reshape(N, M)</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>    xs_expanded <span class="op">=</span> x.repeat(M).reshape(N, M)</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>    xs_powered <span class="op">=</span> np.power(xs_expanded, powers_expanded)</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Apply w</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> w <span class="op">@</span> xs_powered.T</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="./img/code_signal_and_data.png" class="img-fluid figure-img" width="500"></p>
@@ -589,81 +587,78 @@ p(t|x, \pmb{\mathsf{x}}, \pmb{\mathsf{t}}) = \mathcal{N}(t|m(x), s^2(x)), \tag{2
 <span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a><span class="co">    Create the matrix A where A_ij = sum_n=1^N [x_n^(i+j)].</span></span>
 <span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
 <span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    A <span class="op">=</span> np.zeros((M, M))</span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    <span class="co"># For each row</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    <span class="co"># For each cell</span></span>
 <span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(M):</span>
-<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>        <span class="co"># For each column</span></span>
-<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(M):</span>
-<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Fill in A_ij = sum_n=1^N (x_n^(i+j))</span></span>
-<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>            A[i][j] <span class="op">=</span> np.<span class="bu">sum</span>(xs<span class="op">**</span>(i<span class="op">+</span>j))</span>
-<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> A</span>
-<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> create_T(xs: np.array, ts: np.array, M: <span class="bu">int</span>) <span class="op">-&gt;</span> np.array:</span>
-<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
-<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a><span class="co">    Create the vector T where T_i = sum_n=1^N (x_n^i) t_n.</span></span>
-<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
-<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>    T <span class="op">=</span> np.zeros((M,))</span>
-<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>    <span class="co"># For each row </span></span>
-<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(M):</span>
-<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Fill in T_i = sum_n=1^N (x_n^i)t_n</span></span>
-<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>        T[i] <span class="op">=</span> np.<span class="bu">sum</span>((xs <span class="op">**</span> i) <span class="op">*</span> ts)</span>
-<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> T</span>
-<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> create_lambdaI(size: <span class="bu">int</span>, ln_lambda: <span class="bu">float</span>) <span class="op">-&gt;</span> np.array:</span>
-<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
-<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a><span class="co">    Create an identity matrix with lambda as the diagonal elements.</span></span>
-<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
-<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>    lambda_ <span class="op">=</span> np.exp(ln_lambda)</span>
-<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>    identity <span class="op">=</span> np.eye(N<span class="op">=</span>size)</span>
-<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> lambda_ <span class="op">*</span> identity</span>
-<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_w(xs: np.array, ts: np.array, M: <span class="bu">int</span>, ln_lambda: <span class="bu">float</span>) <span class="op">-&gt;</span> np.array:</span>
-<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
-<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a><span class="co">    Creates A and T using `create_A` and `create_T` and then solves </span></span>
-<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a><span class="co">    the linear system of equations to get w.</span></span>
-<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
-<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>    A <span class="op">=</span> create_A(xs<span class="op">=</span>xs, M<span class="op">=</span>M)</span>
-<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>    lambdaI <span class="op">=</span> create_lambdaI(size<span class="op">=</span>M, ln_lambda<span class="op">=</span>ln_lambda)</span>
-<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>    A_plus_lambdaI <span class="op">=</span> A <span class="op">+</span> lambdaI</span>
-<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>    T <span class="op">=</span> create_T(xs<span class="op">=</span>xs, ts<span class="op">=</span>ts, M<span class="op">=</span>M)</span>
-<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.linalg.solve(a<span class="op">=</span>A_plus_lambdaI, b<span class="op">=</span>T)</span>
-<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> predict(w: np.array, x: np.array, M) <span class="op">-&gt;</span> np.array:</span>
-<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
-<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a><span class="co">    Feature expand the input x and then run the linear</span></span>
-<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a><span class="co">    transformation involving w,x to get predictions for target t.</span></span>
-<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
-<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Get [x**1, x**2, x**3 ... x**M] for each x</span></span>
-<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a>    N <span class="op">=</span> x.shape[<span class="dv">0</span>]</span>
-<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a>    powers <span class="op">=</span> np.arange(<span class="dv">0</span>, M )</span>
-<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a>    powers_expanded <span class="op">=</span> np.tile(powers, (N,)).reshape(N, M)</span>
-<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a>    xs_expanded <span class="op">=</span> x.repeat(M).reshape(N, M)</span>
-<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a>    xs_powered <span class="op">=</span> np.power(xs_expanded, powers_expanded)</span>
-<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Apply w</span></span>
-<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> w <span class="op">@</span> xs_powered.T</span>
-<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a><span class="co"># ======== Find W, Predict, and Plot for various M ======= #</span></span>
-<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a>figure <span class="op">=</span> plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">8</span>))</span>
-<span id="cb2-91"><a href="#cb2-91" aria-hidden="true" tabindex="-1"></a>cols, rows <span class="op">=</span> <span class="dv">2</span>, <span class="dv">4</span></span>
-<span id="cb2-92"><a href="#cb2-92" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, cols <span class="op">*</span> rows <span class="op">+</span> <span class="dv">1</span>):</span>
-<span id="cb2-93"><a href="#cb2-93" aria-hidden="true" tabindex="-1"></a>    M <span class="op">=</span> i <span class="op">+</span> <span class="dv">1</span></span>
-<span id="cb2-94"><a href="#cb2-94" aria-hidden="true" tabindex="-1"></a>    w <span class="op">=</span> get_w(</span>
-<span id="cb2-95"><a href="#cb2-95" aria-hidden="true" tabindex="-1"></a>        xs<span class="op">=</span>xs,</span>
-<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a>        ts<span class="op">=</span>ts,</span>
-<span id="cb2-97"><a href="#cb2-97" aria-hidden="true" tabindex="-1"></a>        M<span class="op">=</span>M,</span>
-<span id="cb2-98"><a href="#cb2-98" aria-hidden="true" tabindex="-1"></a>        ln_lambda<span class="op">=</span><span class="dv">0</span>,</span>
-<span id="cb2-99"><a href="#cb2-99" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb2-100"><a href="#cb2-100" aria-hidden="true" tabindex="-1"></a>    t_hats <span class="op">=</span> predict(w, line, M)</span>
-<span id="cb2-101"><a href="#cb2-101" aria-hidden="true" tabindex="-1"></a>    figure.add_subplot(rows, cols, i)</span>
-<span id="cb2-102"><a href="#cb2-102" aria-hidden="true" tabindex="-1"></a>    plt.axis(<span class="st">"off"</span>)</span>
-<span id="cb2-103"><a href="#cb2-103" aria-hidden="true" tabindex="-1"></a>    plt.title(<span class="ss">f"M = </span><span class="sc">{</span>M<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb2-104"><a href="#cb2-104" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Plot signal</span></span>
-<span id="cb2-105"><a href="#cb2-105" aria-hidden="true" tabindex="-1"></a>    plt.plot(line, signal_fn(line), label<span class="op">=</span><span class="st">"Signal"</span>, c<span class="op">=</span><span class="st">"green"</span>)</span>
-<span id="cb2-106"><a href="#cb2-106" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Plot data</span></span>
-<span id="cb2-107"><a href="#cb2-107" aria-hidden="true" tabindex="-1"></a>    plt.scatter(xs, ts, s <span class="op">=</span> <span class="dv">3</span>, label<span class="op">=</span><span class="st">"Data"</span>, c<span class="op">=</span><span class="st">"black"</span>)</span>
-<span id="cb2-108"><a href="#cb2-108" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Plot predictions</span></span>
-<span id="cb2-109"><a href="#cb2-109" aria-hidden="true" tabindex="-1"></a>    plt.plot(line, t_hats, label<span class="op">=</span><span class="st">"Predicted Signal"</span>)</span>
-<span id="cb2-110"><a href="#cb2-110" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(M):</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>            A[i][j] <span class="op">=</span> np.<span class="bu">sum</span>(xs<span class="op">**</span>(i<span class="op">+</span>j))</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> A</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> create_T(xs: np.array, ts: np.array, M: <span class="bu">int</span>) <span class="op">-&gt;</span> np.array:</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a><span class="co">    Create the vector T where T_i = sum_n=1^N (x_n^i) t_n.</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>    T <span class="op">=</span> np.zeros((M,))</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>    <span class="co"># For each row </span></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(M):</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>        T[i] <span class="op">=</span> np.<span class="bu">sum</span>((xs <span class="op">**</span> i) <span class="op">*</span> ts)</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> T</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> create_lambdaI(size: <span class="bu">int</span>, ln_lambda: <span class="bu">float</span>) <span class="op">-&gt;</span> np.array:</span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a><span class="co">    Create an identity matrix with lambda as the diagonal elements.</span></span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>    lambda_ <span class="op">=</span> np.exp(ln_lambda)</span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>    identity <span class="op">=</span> np.eye(N<span class="op">=</span>size)</span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> lambda_ <span class="op">*</span> identity</span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_w(xs: np.array, ts: np.array, M: <span class="bu">int</span>, ln_lambda: <span class="bu">float</span>) <span class="op">-&gt;</span> np.array:</span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a><span class="co">    Creates A and T using `create_A` and `create_T` and then solves </span></span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a><span class="co">    the linear system of equations to get w.</span></span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>    A <span class="op">=</span> create_A(xs<span class="op">=</span>xs, M<span class="op">=</span>M)</span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>    lambdaI <span class="op">=</span> create_lambdaI(size<span class="op">=</span>M, ln_lambda<span class="op">=</span>ln_lambda)</span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>    A_plus_lambdaI <span class="op">=</span> A <span class="op">+</span> lambdaI</span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>    T <span class="op">=</span> create_T(xs<span class="op">=</span>xs, ts<span class="op">=</span>ts, M<span class="op">=</span>M)</span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.linalg.solve(a<span class="op">=</span>A_plus_lambdaI, b<span class="op">=</span>T)</span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> predict(w: np.array, x: np.array, M) <span class="op">-&gt;</span> np.array:</span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a><span class="co">    Feature expand the input x and then run the linear</span></span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a><span class="co">    transformation involving w,x to get predictions for target t.</span></span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Get [x**1, x**2, x**3 ... x**M] for each x</span></span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>    N <span class="op">=</span> x.shape[<span class="dv">0</span>]</span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a>    powers <span class="op">=</span> np.arange(<span class="dv">0</span>, M )</span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a>    powers_expanded <span class="op">=</span> np.tile(powers, (N,)).reshape(N, M)</span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a>    xs_expanded <span class="op">=</span> x.repeat(M).reshape(N, M)</span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a>    xs_powered <span class="op">=</span> np.power(xs_expanded, powers_expanded)</span>
+<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Apply w</span></span>
+<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> w <span class="op">@</span> xs_powered.T</span>
+<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a><span class="co"># ======== Find W, Predict, and Plot for various M ======= #</span></span>
+<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a>figure <span class="op">=</span> plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">8</span>))</span>
+<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a>cols, rows <span class="op">=</span> <span class="dv">2</span>, <span class="dv">4</span></span>
+<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, cols <span class="op">*</span> rows <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a>    M <span class="op">=</span> i <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb2-91"><a href="#cb2-91" aria-hidden="true" tabindex="-1"></a>    w <span class="op">=</span> get_w(</span>
+<span id="cb2-92"><a href="#cb2-92" aria-hidden="true" tabindex="-1"></a>        xs<span class="op">=</span>xs,</span>
+<span id="cb2-93"><a href="#cb2-93" aria-hidden="true" tabindex="-1"></a>        ts<span class="op">=</span>ts,</span>
+<span id="cb2-94"><a href="#cb2-94" aria-hidden="true" tabindex="-1"></a>        M<span class="op">=</span>M,</span>
+<span id="cb2-95"><a href="#cb2-95" aria-hidden="true" tabindex="-1"></a>        ln_lambda<span class="op">=</span><span class="dv">0</span>,</span>
+<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-97"><a href="#cb2-97" aria-hidden="true" tabindex="-1"></a>    t_hats <span class="op">=</span> predict(w, line, M)</span>
+<span id="cb2-98"><a href="#cb2-98" aria-hidden="true" tabindex="-1"></a>    figure.add_subplot(rows, cols, i)</span>
+<span id="cb2-99"><a href="#cb2-99" aria-hidden="true" tabindex="-1"></a>    plt.axis(<span class="st">"off"</span>)</span>
+<span id="cb2-100"><a href="#cb2-100" aria-hidden="true" tabindex="-1"></a>    plt.title(<span class="ss">f"M = </span><span class="sc">{</span>M<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb2-101"><a href="#cb2-101" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Plot signal</span></span>
+<span id="cb2-102"><a href="#cb2-102" aria-hidden="true" tabindex="-1"></a>    plt.plot(line, signal_fn(line), label<span class="op">=</span><span class="st">"Signal"</span>, c<span class="op">=</span><span class="st">"green"</span>)</span>
+<span id="cb2-103"><a href="#cb2-103" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Plot data</span></span>
+<span id="cb2-104"><a href="#cb2-104" aria-hidden="true" tabindex="-1"></a>    plt.scatter(xs, ts, s <span class="op">=</span> <span class="dv">3</span>, label<span class="op">=</span><span class="st">"Data"</span>, c<span class="op">=</span><span class="st">"black"</span>)</span>
+<span id="cb2-105"><a href="#cb2-105" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Plot predictions</span></span>
+<span id="cb2-106"><a href="#cb2-106" aria-hidden="true" tabindex="-1"></a>    plt.plot(line, t_hats, label<span class="op">=</span><span class="st">"Predicted Signal"</span>)</span>
+<span id="cb2-107"><a href="#cb2-107" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="./img/code_signal_and_data.png" class="img-fluid figure-img" width="500"></p>

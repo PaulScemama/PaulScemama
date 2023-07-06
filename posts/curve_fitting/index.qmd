@@ -1,6 +1,6 @@
 ---
 title: "Approaches to Curve Fitting"
-format:
+format: 
   html:
     include-in-header: mathjax.html
   pdf: default
@@ -10,15 +10,9 @@ max-width: 10em
 toc: true
 ---
 
-# References
-
-[*Pattern Recognition and Machine Learning*](https://www.microsoft.com/en-us/research/uploads/prod/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf), **Christopher M. Bishop**, 2006
-
-[*Bayesian Inference: An Introduction to Principles and Practice in Machine Learning*](https://www.miketipping.com/papers/met-mlbayes.pdf) **Michael E. Tipping**, 2004
-
 # 1 Introduction
 
-In a canonical scenario, we observe a real-valued variable $t$ and we'd like to *model* it. In other words, we'd like to create a process that could plausibly generate $t$ so that we can gather insights and make predictions. In this post, we consider the supervised setting where we model a target variable $t$ as a function of some observed input variable $x$. To this end, we have gathered a set of $N$ realizations $t_n$ of $t$ together with a corresponding set of realizations $x_n$ of $x$,
+In a canonical scenario, we observe a real-valued variable $t$ and we'd like to *model* it. Simply put, we'd like to describe a mathematical process describing the creation of $t$. Once we build such a model we can gather insights and make predictions. In this post, we consider the supervised setting where we model a target variable $t$ as a function of some observed input variable $x$. To this end, we have gathered a set of $N$ realizations $t_n$ of $t$ together with a corresponding set of realizations $x_n$ of $x$,
 
 $$
 \pmb{\mathsf{x}} = \{x_1, x_2, ..., x_N\}^\intercal, \; \pmb{\mathsf{t}} = \{t_1, t_2, ..., t_N\}^\intercal.
@@ -31,39 +25,40 @@ y = \text{sin}(2 \pi x) + \mathcal{N}(0, \beta^{-1}), \tag{1}
 $$
 
 
-where we've denoted the variance as $\beta^{-1}$ so that $\beta = 1 / \sigma^2$ which we call the *precision*. The goal is to exploit our observed data $\{ \pmb{\mathsf{x}}, \pmb{\mathsf{t}} \}$ to model the *underlying generative function* $(1)$ to then do something useful; for example, predict unseen values of $t$ for new values of $x$.
+where we've denoted the variance as $\beta^{-1}$ so that $\beta = 1 / \sigma^2$ which we call the *precision*. The goal is to exploit our observed data $\{ \pmb{\mathsf{x}}, \pmb{\mathsf{t}} \}$ to create a model of the *underlying generative (and random) function* $(1)$ to then do something useful -- for example, predict an unobserved value of $t$ for a new observed value of $x$. The type of modeling discussed in this post is referred to as *parametric* because, as shall be seen, we predefine a family of data-generating functions and then tune the *parameters* governing those functions according to how well the resultant function explains our observed dataset. 
 
 
 # 2 The Deterministic Approach
 
 ## 2.1 The Model
 
-In the deterministic approach, we simply consider our target variable $t$ to be a parameterized function of the input variable $x$ and some unknown parameters $\mathbf{w}$. In other words, we assume $t$ is the result of a non-random data-generating process which can be described by a function within the family of functions
+In the deterministic approach, we simply consider our target variable $t$ to be a parameterized function of (i) the input variable $x$ and (ii) some unknown parameters $\mathbf{w}$. In other words, we assume $t$ is the result of a *non-random* data-generating process which can be described by a function within the family of functions
 
 $$
 y(x, \mathbf{w}) = w_0 + w_1x + w_2x^2 + \dots + w_Mx^M = \sum_{j=0}^M w_j x^j, \tag{2}
 $$
-where $M$ is the order of the polynomial, and the polynomial coefficients $w_0, ..., w_M$ are collectively denoted by the vector $\mathbf{w}$. Although $y(x, \mathbf{w})$ is a nonlinear function of $x$, it is linear in the unknown parameters $\mathbf{w}$. Functions that are linear in the unknown parameters have special properties and are called *linear models*. 
+
+where $M$ is the order of the polynomial, and the polynomial coefficients $w_0, ..., w_M$ are packaged in the vector $\mathbf{w}$. Although $y(x, \mathbf{w})$ is a nonlinear function of $x$, it is linear in the unknown parameters $\mathbf{w}$. Functions that are linear in the unknown parameters have special properties and are called *linear models*. 
 
 ## 2.2 Least-Squares Estimation
 
-Although we're trying to model the variable $t$ as a function of the input variable $x$, we only have realizations of these variables which we've stored in $\{\pmb{\mathsf{x}}, \pmb{\mathsf{t}}\}$. In the deterministic approach we try and find a setting of $\mathbf{w}$ that best agrees with our dataset $\{\pmb{\mathsf{x}}, \pmb{\mathsf{t}}\}$ by minimizing some notion of "error". This error measures the misfit between a realized model -- the function $y(x, \mathbf{w})$ for a given value of $\mathbf{w}$ -- and the training data points. A widely used (and simple) error function is given by the sum-of-squares of the Euclidean distance between predictions $y(x_n, \mathbf{w})$ and the corresponding target values $t_n$, 
+Although we're trying to model the variable $t$ as a function of the input variable $x$, we only have realizations of these variables which we've stored in $\{\pmb{\mathsf{x}}, \pmb{\mathsf{t}}\}$. In the deterministic approach we try and find a setting of $\mathbf{w}$ that best agrees with our dataset $\{\pmb{\mathsf{x}}, \pmb{\mathsf{t}}\}$ by minimizing some notion of "error". This error measures the misfit between a realized model -- the function $y(x, \mathbf{w})$ for a given setting of $\mathbf{w}$ -- and the training data points. A widely used (and simple) error function is given by the sum-of-squares of the Euclidean distance between predictions $y(x_n, \mathbf{w})$ and the corresponding target values $t_n$, 
 
 $$
 E(\mathbf{w}) = \frac{1}{2} \sum_{n=1}^N \{y(x_n, \mathbf{w}) - t_n \}^2. \tag{3}
 $$ 
 
-The value of $E(\mathbf{w})$ is always non-negative and zero only when $y(x, \mathbf{w})$ passes exactly through every training point. Using the error function $(3)$ in order to find the parameter values for $\mathbf{w}$ is called the method of *least-squares*. It is visualized in Figure 1.
+The value of $E(\mathbf{w})$ is always non-negative and is zero only when $y(x, \mathbf{w})$ passes exactly through every training point. Using the error function $(3)$ in order to find the parameter values for $\mathbf{w}$ is called the method of *least-squares*. It is visualized in Figure 1.
 
 ![Figure 1: The sum-of-squares error function in $(3)$ is computed by taking one half the sum of the squared distances of each data point from the function $y(x, \mathbf{w})$. These displacements are shown in red.](./img/sum_of_squares.png){width=400}
 
-Solving for $\mathbf{w}$ in this setting is fairly straightforward. Because the error function in $(3)$ is a quadratic function of the parameters $\mathbf{w}$, its derivative with respect to $\mathbf{w}$ will be linear in the elements of $\mathbf{w}$. Therefore, the minimization of the error function has a unique solution, which we denote $\mathbf{w}^*$. It can be found in closed form (Appendix **1**). We can then use $y(x, \mathbf{w}^{*})$ to predict new values of the target $t$ for new values of the input $x$.
+Solving for $\mathbf{w}$ in this setting is fairly straightforward. Because the error function $(3)$ is a quadratic function of the parameters $\mathbf{w}$, its derivative with respect to $\mathbf{w}$ will be linear in the elements of $\mathbf{w}$. Therefore, the minimization of the error function has a unique solution, which we denote $\mathbf{w}^*$. It can be found in closed form (Appendix **1**). We can then use $y(x, \mathbf{w}^{*})$ to predict new values of the target $t$ for new observed values of the input $x$.
 
 ## 2.3 Overfitting
 
 There remains the need to choose the order $M$ of the polynomial, which falls within the realm of *model selection*. Choosing a large $M$ yields a flexible set of models for us to fit, but they are susceptible to *overfitting*. We will see later that the least-squares method represents a special case of *maximum likelihood*, and that overfitting can be viewed as a general symptom of maximum likelihood. 
 
-For now, we can continue with a particular method to avoid overfitting -- regularization. This involves adding a new term to the error function $(3)$ that penalizes the parameters $\mathbf{w}$ for being too large. The simplest way to do so is to add the sum-of-squares of the weights. This leads to a new error function,
+For now, we can continue with a particular method to avoid overfitting -- regularization. This involves adding a new term to the error function $(3)$ that penalizes the parameters $\mathbf{w}$ for being too large. The simplest penalty term to add is the sum-of-squares of the *weights*. This leads to a new error function,
 
 $$
 \overset{\sim}{E} (\mathbf{w}) = \frac{1}{2} \sum_{n=1}^N \{y(x_n, \mathbf{w}) \}^2 + \frac{\lambda}{2} \lVert \mathbf{w} \rVert^2 \tag{4},
@@ -77,11 +72,11 @@ where $\lVert \mathbf{w} \rVert^2 = \mathbf{w}^\intercal \mathbf{w} = w_0^2 + w_
 
 In the deterministic approach we assumed $t$ to be the result of a deterministic function of $x$ and unknown parameters $\mathbf{w}$. We now consider a *probabilistic* model so that we can express uncertainty in our predictions. 
 
-In the deterministic approach, we considered $t$ as being the result of a process described by a parameterized function $y(x, \mathbf{w})$. However, we may not want to make such a strong statement as saying $t$ *is exactly equal to* $y(x, \mathbf{w})$. This could be because we think there is noise in the observations $\pmb{\mathsf{t}}$, for example due to measurement error. To introduce such uncertainty, we need to place a distribution over the target variable $t$. A sensible distributional assumption is to place a Gaussian distribution over $t$, with its mean given by the parameterized function $y(x, \mathbf{w})$, and its variance being fixed and unknown. This is visualized in Figure 2. 
+We may not want to make such a strong statement as saying $t$ *is exactly* equal to $y(x, \mathbf{w})$ as we did in the previous section. This could be because we think there is noise in the observations $\pmb{\mathsf{t}}$, for example due to measurement error. To articulate this assumed reality we need to place a distribution over the target variable $t$. A sensible distributional assumption is to place a Gaussian distribution over $t$ with its mean given by the parameterized function $y(x, \mathbf{w})$ and its variance being fixed and unknown. This is visualized in Figure 2. 
 
 ![Figure 2: Illustration of a Gaussian conditional distribution over $t$ conditioned on $x$ where the mean of the distribution is given by some function of $x$, and the variance is fixed](./img/gaussian_noise_model.png){width=400}
 
-To understand what we're effectively saying when we create such a model, it is useful to re-emphasize and apply the *data-generating process* perspective. We can think of our model as describing a process that produces $t$ from a given $x$ and parameter $\mathbf{w}$. Last section, this process was a deterministic function $y(x, \mathbf{w})$. In this section, we extend the process by making the assumption that each $t$ is the result of $y(x, \mathbf{w})$ *and some additive uncertainty*, where that additive uncertainty takes the form of a zero-mean Gaussian distribution with unknown variance. This is to say that we are assuming, to have gotten a particular instance of $t$:
+To understand what we're effectively saying when we create such a model, it is useful to re-emphasize and apply the *data-generating process* perspective. We can think of our model as describing a process that produces $t$ from a given $x$ and parameter setting $\mathbf{w}$. Last section, this process was a deterministic function $y(x, \mathbf{w})$. In this section, we extend the process by positing that each $t$ is the result of $y(x, \mathbf{w})$ *and some additive uncertainty*, where that additive uncertainty takes the form of a zero-mean Gaussian distribution with unknown variance. This is to say that we are assuming, to have gotten a particular instance of $t$:
 
 - we are given an instance of $x$,
 - this instance of $x$ is then used to obtain the output of the parameterized function $y(x, \mathbf{w})$,
@@ -98,9 +93,9 @@ where we've used the scaling property of the Gaussian distribution's mean. $(5)$
 
 ## 3.2 Maximum Likelihood Estimation
 
-In order to use the training dataset $\{\pmb{\mathsf{x}}, \pmb{\mathsf{t}}\}$ to determine the values of the unknown parameters $\mathbf{w}$ and $\beta$, we will use a more general approach than error minimization -- *maximum likelihood estimation*. As the name suggests, we will search for a setting of $\mathbf{w}$ and $\beta$ so that the likelihood of our observed data $\{\pmb{\mathsf{t}}\}$ is maximized. In other words, we've defined a data-generating process, and we want to find the setting of the parameters so that the likelihood of our process having *created* our observed $\{\pmb{\mathsf{t}}\}$ is maximized. 
+In order to use the training dataset $\{\pmb{\mathsf{x}}, \pmb{\mathsf{t}}\}$ to determine the values of the unknown parameters $\mathbf{w}$ and $\beta$, we will use a more general approach than error minimization -- *maximum likelihood estimation*. As the name suggests, we will search for a setting of $\mathbf{w}$ and $\beta$ so that the likelihood of our observed data $\pmb{\mathsf{t}}$ is maximized. In other words, we've defined a data-generating process, and we want to find the setting of the parameters such that the probabilities of our process having *created* each observed $t_n \in \pmb{\mathsf{t}}$ from each $x_n \in \pmb{\mathsf{x}}$ are maximized. The likelihood measures the aggregation of all these point-wise probabilities.
 
-In order to use maximum likelihood estimation, we need to have a *likelihood function*. A likelihood function is *derived* from an observation model. It can be thought of as an observation model being *applied* to a particular dataset. Assuming the data $\{\pmb{\mathsf{t}}\}$ were independently sampled from $(5)$, the likelihood function is the product of evaluating how consistent the model is with each datapoint $(t_n, x_n)$, and is evaluated for a particular setting of $\mathbf{w}$ and $\beta$,
+In order to use maximum likelihood estimation, we need to have a *likelihood function*. A likelihood function is *derived* from an observation model. It can be thought of as an observation model being *applied* to a particular dataset. Assuming the data $\pmb{\mathsf{t}}$ were independently sampled from $(5)$, the likelihood function is the product of evaluating how consistent the model is with each datapoint $(t_n, x_n)$, and is evaluated for a particular setting of $\mathbf{w}$ and $\beta$,
 
 $$
 p(\pmb{\mathsf{t}}| \pmb{\mathsf{x}}, \mathbf{w}, \beta) = \prod_{n=1}^N \mathcal{N}(t_n|y(x_n, \mathbf{w}), \beta^{-1}). \tag{6}
@@ -130,7 +125,7 @@ $$
 \frac{1}{\beta_{\text{ML}}} = \frac{1}{N} \sum_{n=1}^N \{y(x_n, \mathbf{w}_{\text{ML}}) - t_n \}^2. \tag{9}
 $$
 
-And so we see that the maximum likelihood procedure yields a variance $\sigma^2$ being the average squared deviation between the observed data points and the fitted $y(x, \mathbf{w}_{\text{ML}})$. 
+And so we see that the maximum likelihood procedure yields a variance $\sigma^2$ as equalling the average squared deviation between the observed data points and the function $y(x, \mathbf{w}_{\text{ML}})$. 
 
 #### **3.2.2 Maximum Likelihood's predictive distribution**
 
@@ -149,11 +144,11 @@ $$
 p(\mathbf{w}| \alpha) = \mathcal{N}(\mathbf{w} | \mathbf{0}, \alpha^{-1} \mathbf{I}) = \left( \frac{\alpha}{2 \pi} \right)^{(M+1) / 2} \text{exp} \left[- \frac{\alpha}{2} \mathbf{w}^{\intercal} \mathbf{w} \right], \tag{11} 
 $$ 
 
-where $\alpha$ is the precision of the distribution and $M+1$ is the number of elements in $\mathbf{w}$ for an $M$ order polynomial function. Variables such as $\alpha$ are called *hyperparameters* since we have to choose them. Now that we have a prior, we can use Bayes' theorem to yield a quantity proportional to the posterior,
+where $\alpha$ is the precision of the distribution and $M+1$ is the number of elements in $\mathbf{w}$ for an $M$ order polynomial function. Variables such as $\alpha$ are called *hyperparameters* since we have to choose their values. Now that we have a prior, we can use Bayes' theorem to yield a quantity proportional to the posterior,
 
 
 $$
-\overbrace{ p(\mathbf{w}|\pmb{\mathsf{x}}, \pmb{\mathsf{t}}, \alpha, \beta) }^{\text{Posterior } p(\mathbf{w}|D)} \propto \underbrace{p(\pmb{\mathsf{t}}|\pmb{\mathsf{x}}, \mathbf{w}, \beta)}_{\text{Likelihood } p(D|\mathbf{w})} \overbrace{p(\mathbf{w}|\alpha)}^{\text{Prior }p(\mathbf{w})}, \tag{12}
+\overbrace{ p(\mathbf{w}|\pmb{\mathsf{x}}, \pmb{\mathsf{t}}, \alpha, \beta) }^{\text{Posterior } p(\mathbf{w}|D)} = \frac{\overbrace{p(\pmb{\mathsf{t}}|\pmb{\mathsf{x}}, \mathbf{w}, \beta)}^{\text{Likelihood } p(D|\mathbf{w})} \; \cdot \; \overbrace{p(\mathbf{w}|\alpha)}^{\text{Prior }p(\mathbf{w})}}{\underbrace{p(\pmb{\mathsf{t}}|\pmb{\mathsf{x}})}_{\text{Model Evidence } p(D)}} \propto \overbrace{p(\pmb{\mathsf{t}}|\pmb{\mathsf{x}}, \mathbf{w}, \beta)}^{\text{Likelihood } p(D|\mathbf{w})} \; \cdot \; \overbrace{p(\mathbf{w}|\alpha)}^{\text{Prior }p(\mathbf{w})}, \tag{12}
 $$ 
 
 where the proportion relation $\propto$ comes from the fact that the denominator of Bayes' theorem, $p(D) = p(\mathbf{t} | \mathbf{x})$, does not depend on $\mathbf{w}$. Maximizing the right hand size of $(12)$ with respect to $\mathbf{w}$ is equivalent to maximizing the posterior with respect to $\mathbf{w}$ due to the proportionality. By optimizing $\mathbf{w}$ to maximize the posterior, we are finding the most probable parameter values $\mathbf{w}$ considering our observed data and also our prior knowledge about $\mathbf{w}$ encapsulated in the (data independent) prior $p(\mathbf{w} | \alpha)$. This yields a tradeoff between what we believed about $\mathbf{w}$ before seeing our data, and the $\mathbf{w}$ that best fits our data. This technique is referred to *maximum a posteriori estimation*, MAPE, or MAP. 
@@ -174,7 +169,8 @@ $$
 $$
 
 
-And so we see that minimizing the regularized sum-of-squares function introduced in $(4)$ arises naturally from maximizing the posterior of a Gaussian noise model with Gaussian prior.
+And so we see that minimizing the regularized sum-of-squares function introduced in $(4)$ arises naturally from maximizing the posterior of a Gaussian noise model with Gaussian prior. 
+
 
 #### **3.3.2 Maximum a posteriori's predictive distribution**
 
@@ -184,12 +180,14 @@ $$
 p(t|x, \mathbf{w}_{\text{MAP}}, \beta_{\text{MAP}}) = \mathcal{N}(y(x, \mathbf{w}_{\text{MAP}}), \beta^{-1}_{\text{MAP}}). \tag{15}
 $$
 
+
+
 ## 3.4 Bayesian Estimation
 
-So far we have been making a point estimate of $\mathbf{w}$, which does not yet amount to a Bayesin treatment. In a Bayesian treatment, we take into account all possible $\mathbf{w}$ that could have explained our data. To predict a new value of $t$ for a new $x$, we marginalize over all possible settings of $\mathbf{w}$, yielding the *posterior predictive distribution* or *Bayesian model average*. The goal of the Bayesian treatment is to compute the posterior over the weights $p(\mathbf{w}|D)$ which represents all possible settings of $\mathbf{w}$ given our observed data $D$. To this end, we must use Bayes' theorem:
+So far we have been making a point estimate of $\mathbf{w}$ which does not yet amount to a Bayesin treatment. In a Bayesian treatment, we take into account all possible $\mathbf{w}$ that could have explained our data. To predict a new value of $t$ for a new $x$, we marginalize over all possible settings of $\mathbf{w}$, yielding the *posterior predictive distribution* or *Bayesian model average*. The goal of the Bayesian treatment is to compute the posterior over the weights $p(\mathbf{w}|D)$ which represents all possible settings of $\mathbf{w}$ that give rise to models that can explain our observed data $D$. To this end, we must use Bayes' theorem:
 
 $$
-p(\mathbf{w}|D) = \frac{p(D|\mathbf{w})(p(\mathbf{w}))}{p(D)}. \tag{16}
+p(\mathbf{w}|D) = \frac{p(D|\mathbf{w})p(\mathbf{w})}{p(D)}. \tag{16}
 $$
 
 And for our regression problem in particular, $(16)$ can be further specified as
@@ -205,11 +203,11 @@ $$
 p(\mathbf{w} \vert \pmb{\mathsf{x}}, \pmb{\mathsf{t}}) = \frac{p(\pmb{\mathsf{t}} \vert \pmb{\mathsf{x}}, \mathbf{w}) \cdot p(\mathbf{w})}{p(\pmb{\mathsf{t}} \vert \pmb{\mathsf{x}})}. \tag{18}
 $$
 
-So instead of computing a single *point estimate* of the weights (as we've done thus far); now, given the likelihood and the prior, we can compute the *posterior distribution* over $\mathbf{w}$ via Bayes' rule. Computing the posterior can be facilitated by our choice of prior (a modeling choice) so that we can calculate the posterior in closed form. Those priors are referred to as *conjugate priors*. There are a number of other techniques used to instead *approximate* the posterior $p(\mathbf{w}|\pmb{\mathsf{t}}, \pmb{\mathsf{x}})$ when conjugacy is impossible. These include *variational inference* and *markov chain monte carlo sampling*. We save all these methods for another post and assume we’ve found the exact posterior.
+So instead of computing a single *point estimate* of the weights (as we've done thus far); now, given the likelihood and the prior, we can compute the *posterior distribution* over $\mathbf{w}$ via Bayes' rule. Computing the posterior can be facilitated by our choice of prior (a modeling choice) so that we can calculate the posterior in closed form. Those priors are referred to as *conjugate priors*. There are a number of other techniques used to instead *approximate* the posterior $p(\mathbf{w}|\pmb{\mathsf{t}}, \pmb{\mathsf{x}})$ when conjugacy is impossible. These include *variational inference* and *markov chain monte carlo sampling*. Pretty much all posterior approximation methods introduce different ways to circumvent the explicit calculation of the denominator $P(D) = p(\pmb{\mathsf{t}}|\pmb{\mathsf{x}})$ which is intractable for any interesting model. We save all these methods for another post and assume we’ve found the exact posterior.
 
 #### **3.4.1 Bayesian's predictive distribution**
 
-Once it is found, the posterior represents all possible settings of $\mathbf{w}$ that could explain our data. To incorporate this information into a *predictive distribution* so that we can predict new values of an unobserved $t$ given an unobserved $x$, we marginalize over all possible settings of $\mathbf{w}$ like so:
+Once it is found, the posterior represents all possible settings of $\mathbf{w}$ in that they induce models that can explain our data. To incorporate this information into a *predictive distribution* so that we can predict new values of an unobserved $t$ given an unobserved $x$, we marginalize over all possible settings of $\mathbf{w}$ like so:
 
 $$
 p(t|x, \pmb{\mathsf{x}}, \pmb{\mathsf{t}}) = \int p(t|x, \mathbf{w}) p(\mathbf{w}|\pmb{\mathsf{x}}, \pmb{\mathsf{t}}) \text{d}\mathbf{w}, \tag{19}
@@ -218,14 +216,14 @@ $$
 where $p(t|x, \mathbf{w})$ is our model given by $(5)$ omitting the dependence on $\beta$, and $p(\mathbf{w}|\pmb{\mathsf{x}}, \pmb{\mathsf{t}})$ is the posterior over the weights $\mathbf{w}$. In $(19)$, 
 
 - we look at a possible setting of $\mathbf{w}$ which we will denote $\mathbf{w}_i$ according to the posterior $p(\mathbf{w}|\pmb{\mathsf{x}}, \pmb{\mathsf{t}})$. Placing $\mathbf{w}_i$ into our observation model $p(t|x, \mathbf{w})$ defines a "fitted model" $p(t|x, \mathbf{w}_i)$. 
-- this "fitted" model is *multiplied* by the probability of that setting of $\mathbf{w}_i$ given by the posterior. In other words, the probability that $p(t|x, \mathbf{w}_i)$ having been used to generate our observed data $\pmb{\mathsf{t}}$ from the inputs $\pmb{\mathsf{x}}$.
+- this "fitted model" is *multiplied* by the probability of that setting of $\mathbf{w}_i$ given by the posterior. In other words, the probability that $p(t|x, \mathbf{w}_i)$ was used to generate our observed data $\pmb{\mathsf{t}}$ from the inputs $\pmb{\mathsf{x}}$.
 - we do this for every possible setting $\mathbf{w}_i$ according to the posterior and integrate.
 
-Thus, we are taking a weighted average of all possible "fitted" models, where the weights of each component are determined by how likely the setting of $\mathbf{w}$ isi according to its posterior. 
+Thus, we are taking a weighted average of all possible "fitted models", where the weights of each component are determined by how likely the setting of $\mathbf{w}$ is according to its posterior. 
 
 #### **3.4.2 Analyzing our specific predictive distribution**
 
-We will now alnalyze the specific form of $(19)$ for our example problem. A consequence of us selecting a Gaussian likelihood and a Gaussian prior is that we can analytically compute the posterior; and it is Gaussian as well -- an example of *conjugacy*. More so, we can analytically solve the integration in $(19)$ to get a predictive distribution that itself is Gaussian. In fact, it takes on the more specific form
+We will now analyze the specific form of $(19)$ for our example problem. A consequence of us selecting a Gaussian likelihood and a Gaussian prior is that we can analytically compute the posterior; and it is Gaussian as well -- an example of *conjugacy*. More so, we can analytically solve the integration in $(19)$ to get a predictive distribution that itself is Gaussian. In fact, it takes on the more specific form
 
 $$
 p(t|x, \pmb{\mathsf{x}}, \pmb{\mathsf{t}}) = \mathcal{N}(t|m(x), s^2(x)), \tag{20}
@@ -234,19 +232,24 @@ $$
 where the mean and variance are given by 
 
 \begin{align}
-&m(x) = \beta \pmb{\phi}(x)^{\intercal} \mathbf{S} \sum_{n=1}^N \pmb{\phi}(x_n) t_n \tag{19} \\
-& s^2(x) = \overbrace{\beta^{-1}}^{\text{noise}} + \underbrace{\pmb{\phi}(x)^\intercal \mathbf{S} \pmb{\phi}(x)}_{\text{Parameter Uncertainty}} \tag{20}
+&m(x) = \beta \pmb{\phi}(x)^{\intercal} \mathbf{S} \sum_{n=1}^N \pmb{\phi}(x_n) t_n \tag{21} \\
+& s^2(x) = \overbrace{\beta^{-1}}^{\text{noise}} + \underbrace{\pmb{\phi}(x)^\intercal \mathbf{S} \pmb{\phi}(x)}_{\text{Parameter Uncertainty}} \tag{22}
 \end{align}
 
 
-The $\mathbf{S}$ is a matrix, and is given by
+$\mathbf{S}$ is a matrix, and is given by
 
 $$
 \mathbf{S}^{-1} = \alpha \mathbf{I} + \beta \sum_{n=1}^N \pmb{\phi}(x_n)  \pmb{\phi}(x),^\intercal \tag{21}
 $$
 
-where $\mathbf{I}$ is the unit matrix, and we have defined the vector $\pmb{\phi}(x)$ with elements $\phi_i(x) = x^i$ for $i=0,...,M$. In the predictive distribution $(20)$, we now see that the variance depends on $x$. It's expansion is described by $(21)$ and it contains two additive components. The first component, as was already expressed in the maximum likelihood predictive distribution $\beta_{\text{ML}}$, is the noise on the target variables. The second component, which *has not* been expressed until now, arises from the *uncertainty in the parameters* $\mathbf{w}$ and is a consequence of treating $\mathbf{w}$ as a random variable -- a mainstay of the Bayesian treatment.
+where $\mathbf{I}$ is the unit matrix, and we have defined the vector $\pmb{\phi}(x)$ with elements $\phi_i(x) = x^i$ for $i=0,...,M$. In looking at the predictive distribution $(20)$, we now see that the variance depends on $x$. This is *unlike* the maximum likelihood predictive distribution $(10)$ and the maximum a posteriori predictive distribution $(15)$ where the variance is fixed for any value of $x$. It's expansion is described by $(22)$ and it contains two additive components. The first component, as was already expressed in the maximum likelihood predictive distribution $\beta_{\text{ML}}$, is the noise on the target variables. The second component, which *has not* been expressed until now, arises from the *uncertainty in the parameters* $\mathbf{w}$ and is a consequence of treating $\mathbf{w}$ as a random variable -- an artifact of the Bayesian treatment.
 
+# References
+
+[*Pattern Recognition and Machine Learning*](https://www.microsoft.com/en-us/research/uploads/prod/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf), **Christopher M. Bishop**, 2006
+
+[*Bayesian Inference: An Introduction to Principles and Practice in Machine Learning*](https://www.miketipping.com/papers/met-mlbayes.pdf) **Michael E. Tipping**, 2004
 
 # Appendix
 
@@ -317,11 +320,9 @@ def create_A(xs: np.array, M: int) -> np.array:
     Create the matrix A where A_ij = sum_n=1^N [x_n^(i+j)].
     """
     A = np.zeros((M, M))
-    # For each row
+    # For each cell
     for i in range(M):
-        # For each column
         for j in range(M):
-            # Fill in A_ij = sum_n=1^N (x_n^(i+j))
             A[i][j] = np.sum(xs**(i+j))
     return A
 
@@ -332,7 +333,6 @@ def create_T(xs: np.array, ts: np.array, M: int) -> np.array:
     T = np.zeros((M,))
     # For each row 
     for i in range(M):
-        # Fill in T_i = sum_n=1^N (x_n^i)t_n
         T[i] = np.sum((xs ** i) * ts)
     return T
 
@@ -465,11 +465,9 @@ def create_A(xs: np.array, M: int) -> np.array:
     Create the matrix A where A_ij = sum_n=1^N [x_n^(i+j)].
     """
     A = np.zeros((M, M))
-    # For each row
+    # For each cell
     for i in range(M):
-        # For each column
         for j in range(M):
-            # Fill in A_ij = sum_n=1^N (x_n^(i+j))
             A[i][j] = np.sum(xs**(i+j))
     return A
 
@@ -480,7 +478,6 @@ def create_T(xs: np.array, ts: np.array, M: int) -> np.array:
     T = np.zeros((M,))
     # For each row 
     for i in range(M):
-        # Fill in T_i = sum_n=1^N (x_n^i)t_n
         T[i] = np.sum((xs ** i) * ts)
     return T
 
