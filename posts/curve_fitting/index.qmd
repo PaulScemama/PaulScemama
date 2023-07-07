@@ -21,7 +21,7 @@ $$
 In this post, we will consider synthetic data where the underlying data generating process is  
 
 $$
-y = \text{sin}(2 \pi x) + \mathcal{N}(0, \beta^{-1}), \tag{1}
+y = \text{sin}(2 \pi x) + \mathcal{N}(0, \beta^{-1}), \tag{1.1}
 $$
 
 
@@ -35,7 +35,7 @@ where we've denoted the variance as $\beta^{-1}$ so that $\beta = 1 / \sigma^2$ 
 In the deterministic approach, we simply consider our target variable $t$ to be a parameterized function of (i) the input variable $x$ and (ii) some unknown parameters $\mathbf{w}$. In other words, we assume $t$ is the result of a *non-random* data-generating process which can be described by a function within the family of functions
 
 $$
-y(x, \mathbf{w}) = w_0 + w_1x + w_2x^2 + \dots + w_Mx^M = \sum_{j=0}^M w_j x^j, \tag{2}
+y(x, \mathbf{w}) = w_0 + w_1x + w_2x^2 + \dots + w_Mx^M = \sum_{j=0}^M w_j x^j, \tag{2.1}
 $$
 
 where $M$ is the order of the polynomial, and the polynomial coefficients $w_0, ..., w_M$ are packaged in the vector $\mathbf{w}$. Although $y(x, \mathbf{w})$ is a nonlinear function of $x$, it is linear in the unknown parameters $\mathbf{w}$. Functions that are linear in the unknown parameters have special properties and are called *linear models*. 
@@ -45,26 +45,26 @@ where $M$ is the order of the polynomial, and the polynomial coefficients $w_0, 
 Although we're trying to model the variable $t$ as a function of the input variable $x$, we only have realizations of these variables which we've stored in $\{\pmb{\mathsf{x}}, \pmb{\mathsf{t}}\}$. In the deterministic approach we try and find a setting of $\mathbf{w}$ that best agrees with our dataset $\{\pmb{\mathsf{x}}, \pmb{\mathsf{t}}\}$ by minimizing some notion of "error". This error measures the misfit between a realized model -- the function $y(x, \mathbf{w})$ for a given setting of $\mathbf{w}$ -- and the training data points. A widely used (and simple) error function is given by the sum-of-squares of the Euclidean distance between predictions $y(x_n, \mathbf{w})$ and the corresponding target values $t_n$, 
 
 $$
-E(\mathbf{w}) = \frac{1}{2} \sum_{n=1}^N \{y(x_n, \mathbf{w}) - t_n \}^2. \tag{3}
+E(\mathbf{w}) = \frac{1}{2} \sum_{n=1}^N \{y(x_n, \mathbf{w}) - t_n \}^2. \tag{2.2}
 $$ 
 
 The value of $E(\mathbf{w})$ is always non-negative and is zero only when $y(x, \mathbf{w})$ passes exactly through every training point. Using the error function $(3)$ in order to find the parameter values for $\mathbf{w}$ is called the method of *least-squares*. It is visualized in Figure 1.
 
 ![Figure 1: The sum-of-squares error function in $(3)$ is computed by taking one half the sum of the squared distances of each data point from the function $y(x, \mathbf{w})$. These displacements are shown in red.](./img/sum_of_squares.png){width=400}
 
-Solving for $\mathbf{w}$ in this setting is fairly straightforward. Because the error function $(3)$ is a quadratic function of the parameters $\mathbf{w}$, its derivative with respect to $\mathbf{w}$ will be linear in the elements of $\mathbf{w}$. Therefore, the minimization of the error function has a unique solution, which we denote $\mathbf{w}^*$. It can be found in closed form (Appendix **1**). We can then use $y(x, \mathbf{w}^{*})$ to predict new values of the target $t$ for new observed values of the input $x$.
+Solving for $\mathbf{w}$ in this setting is fairly straightforward. Because the error function $(2.2)$ is a quadratic function of the parameters $\mathbf{w}$, its derivative with respect to $\mathbf{w}$ will be linear in the elements of $\mathbf{w}$. Therefore, the minimization of the error function has a unique solution, which we denote $\mathbf{w}^*$. It can be found in closed form (Appendix **1**). We can then use $y(x, \mathbf{w}^{*})$ to predict new values of the target $t$ for new observed values of the input $x$.
 
 ## 2.3 Overfitting
 
 There remains the need to choose the order $M$ of the polynomial, which falls within the realm of *model selection*. Choosing a large $M$ yields a flexible set of models for us to fit, but they are susceptible to *overfitting*. We will see later that the least-squares method represents a special case of *maximum likelihood*, and that overfitting can be viewed as a general symptom of maximum likelihood. 
 
-For now, we can continue with a particular method to avoid overfitting -- regularization. This involves adding a new term to the error function $(3)$ that penalizes the parameters $\mathbf{w}$ for being too large. The simplest penalty term to add is the sum-of-squares of the *weights*. This leads to a new error function,
+For now, we can continue with a particular method to avoid overfitting -- regularization. This involves adding a new term to the error function $(2.2)$ that penalizes the parameters $\mathbf{w}$ for being too large. The simplest penalty term to add is the sum-of-squares of the *weights*. This leads to a new error function,
 
 $$
-\overset{\sim}{E} (\mathbf{w}) = \frac{1}{2} \sum_{n=1}^N \{y(x_n, \mathbf{w}) \}^2 + \frac{\lambda}{2} \lVert \mathbf{w} \rVert^2 \tag{4},
+\overset{\sim}{E} (\mathbf{w}) = \frac{1}{2} \sum_{n=1}^N \{y(x_n, \mathbf{w}) \}^2 + \frac{\lambda}{2} \lVert \mathbf{w} \rVert^2 \tag{2.3},
 $$
 
-where $\lVert \mathbf{w} \rVert^2 = \mathbf{w}^\intercal \mathbf{w} = w_0^2 + w_1^2 + \dots + w_M^2$ and the parameter $\lambda$ controls the strength of regularization. Like $(3)$, the error function $(4)$ can be minimized in close form (Appendix **2**). Instituting such a penalty term as we did takes on different names depending on the literature. In the statistics literature they are known as shrinkage methods, and in the context of neural networks it is known as weight decay. Lastly, the specific case of $(4)$ is known as ridge regression.
+where $\lVert \mathbf{w} \rVert^2 = \mathbf{w}^\intercal \mathbf{w} = w_0^2 + w_1^2 + \dots + w_M^2$ and the parameter $\lambda$ controls the strength of regularization. Like $(2.2)$, the error function $(2.3)$ can be minimized in close form (Appendix **2**). Instituting such a penalty term as we did takes on different names depending on the literature. In the statistics literature they are known as shrinkage methods, and in the context of neural networks it is known as weight decay. Lastly, the specific case of $(2.3)$ is known as ridge regression.
 
 # 3 A Probabilistic Approach
 
@@ -87,52 +87,53 @@ This leads to the following model,
 
 \begin{align}
 p(t|x, \mathbf{w}, \beta) &= y(x, \mathbf{w}) + \mathcal{N}(0, \beta^{-1}) \notag \\
-&= \mathcal{N}(y(x, \mathbf{w}), \beta^{-1}), \tag{5}
+&= \mathcal{N}(y(x, \mathbf{w}), \beta^{-1}), \tag{3.1}
 \end{align}
-where we've used the scaling property of the Gaussian distribution's mean. $(5)$ is an *observation model* and is more specifically referred to as the *Gaussian noise* model or a *conditional Gaussian* model.
+
+where we've used the scaling property of the Gaussian distribution's mean. $(3.1)$ is an *observation model* and is more specifically referred to as the *Gaussian noise* model or a *conditional Gaussian* model.
 
 ## 3.2 Maximum Likelihood Estimation
 
 In order to use the training dataset $\{\pmb{\mathsf{x}}, \pmb{\mathsf{t}}\}$ to determine the values of the unknown parameters $\mathbf{w}$ and $\beta$, we will use a more general approach than error minimization -- *maximum likelihood estimation*. As the name suggests, we will search for a setting of $\mathbf{w}$ and $\beta$ so that the likelihood of our observed data $\pmb{\mathsf{t}}$ is maximized. In other words, we've defined a data-generating process, and we want to find the setting of the parameters such that the probabilities of our process having *created* each observed $t_n \in \pmb{\mathsf{t}}$ from each $x_n \in \pmb{\mathsf{x}}$ are maximized. The likelihood measures the aggregation of all these point-wise probabilities.
 
-In order to use maximum likelihood estimation, we need to have a *likelihood function*. A likelihood function is *derived* from an observation model. It can be thought of as an observation model being *applied* to a particular dataset. Assuming the data $\pmb{\mathsf{t}}$ were independently sampled from $(5)$, the likelihood function is the product of evaluating how consistent the model is with each datapoint $(t_n, x_n)$, and is evaluated for a particular setting of $\mathbf{w}$ and $\beta$,
+In order to use maximum likelihood estimation, we need to have a *likelihood function*. A likelihood function is *derived* from an observation model. It can be thought of as an observation model being *applied* to a particular dataset. Assuming the data $\pmb{\mathsf{t}}$ were independently sampled from $(3.1)$, the likelihood function is the product of evaluating how consistent the model is with each datapoint $(t_n, x_n)$, and is evaluated for a particular setting of $\mathbf{w}$ and $\beta$,
 
 $$
-p(\pmb{\mathsf{t}}| \pmb{\mathsf{x}}, \mathbf{w}, \beta) = \prod_{n=1}^N \mathcal{N}(t_n|y(x_n, \mathbf{w}), \beta^{-1}). \tag{6}
+p(\pmb{\mathsf{t}}| \pmb{\mathsf{x}}, \mathbf{w}, \beta) = \prod_{n=1}^N \mathcal{N}(t_n|y(x_n, \mathbf{w}), \beta^{-1}). \tag{3.2}
 $$
 
-Each time we choose a setting for $\mathbf{w}$ and $\beta$ and plug them into our model, we are defining a conditional distribution given by $(5)$. This conditional distribution may agree with the dataset we have, or it may not. Examples of agreement and disagreement are shown in Figure 3.
+Each time we choose a setting for $\mathbf{w}$ and $\beta$ and plug them into our model, we are defining a conditional distribution given by $(3.1)$. This conditional distribution may agree with the dataset we have, or it may not. Examples of agreement and disagreement are shown in Figure 3.
 
 ![Figure 3: A Gaussian noise model shown for a handful of $x_i$, with two different settings for $\mathbf{w}$ and $\beta$. On the left is a setting of $(\mathbf{w}, \beta)$ that induces a model that disagrees with our observed data. On the right is a setting of $(\mathbf{w}, \beta)$ that induces a model that agrees much better with our observed data. Maximum likelihood looks for a setting of $(\mathbf{w}, beta)$ that best agrees with our observed data.](./img/gaussian_noise_model_disagreement.png){width=500}
 
-We now demonstrate how, in practice, we compute the maximum likelihood estimates for $\mathbf{w}$ and $\beta$. In this example, it can be done in closed form and amounts to taking the derivative of the likelihood $(6)$, setting it equal to zero, and then solving for $\mathbf{w}$ or $\beta$. We begin with $\mathbf{w}$. It is common to instead maximize the log likelihood instead of the likelihood $(6)$ for numerical stability and convenience. We can write the log likelihood as
+We now demonstrate how, in practice, we compute the maximum likelihood estimates for $\mathbf{w}$ and $\beta$. In this example, it can be done in closed form and amounts to taking the derivative of the likelihood $(3.2)$, setting it equal to zero, and then solving for $\mathbf{w}$ or $\beta$. We begin with $\mathbf{w}$. It is common to instead maximize the log likelihood instead of the likelihood $(3.2)$ for numerical stability and convenience. We can write the log likelihood as
 
 $$
-\text{ln}p(\pmb{\mathsf{t}}| \pmb{\mathsf{x}}, \mathbf{w}, \beta) = - \frac{\beta}{2} \sum_{n=1}^N \{y(x_n ,\mathbf{w}) - t_n \}^2 + \frac{N}{2} \text{ln}\beta - \frac{N}{2} \text{ln}(2 \pi). \tag{7}
+\text{ln}p(\pmb{\mathsf{t}}| \pmb{\mathsf{x}}, \mathbf{w}, \beta) = - \frac{\beta}{2} \sum_{n=1}^N \{y(x_n ,\mathbf{w}) - t_n \}^2 + \frac{N}{2} \text{ln}\beta - \frac{N}{2} \text{ln}(2 \pi). \tag{3.3}
 $$
 
 #### **3.2.1 Maximum Likelihood's connection to Least-Squares**
 
-In taking the derivative of $(7)$ with respect to $\mathbf{w}$, we can omit the last two terms as they do not depend on $\mathbf{w}$. We can also replace the coefficient $\frac{\beta}{2}$ with $\frac{1}{2}$ since scaling $(7)$ by a constant won't change the location of the maximum of $(7)$ with respect to $\mathbf{w}$. Lastly, we can equivalently minimize the *negative* log likelihood. This leaves us with minimizing 
+In taking the derivative of $(3.3)$ with respect to $\mathbf{w}$, we can omit the last two terms as they do not depend on $\mathbf{w}$. We can also replace the coefficient $\frac{\beta}{2}$ with $\frac{1}{2}$ since scaling $(3.3)$ by a constant won't change the location of the maximum of $(3.3)$ with respect to $\mathbf{w}$. Lastly, we can equivalently minimize the *negative* log likelihood. This leaves us with minimizing 
 
 $$
-\frac{1}{2} \sum_{n=1}^N \{y(x_n, \mathbf{w}) - t_n \}^2. \tag{8}
+\frac{1}{2} \sum_{n=1}^N \{y(x_n, \mathbf{w}) - t_n \}^2. \tag{3.4}
 $$
 
-And so we see that the sum-of-squares error function has arisen as a consequence of maximizing the likelihood under the assumption of a Gaussian noise distribution. In fact, for a *Gaussian noise model*, maximum likelihood estimation and least-squares estimation find the same $\mathbf{w}$; in particular, the one that minimizes $(8)$. Once we've found the maximum likelihood estimate for $\mathbf{w}$, which we will denote $\mathbf{w}_{\text{ML}}$, we can use it to find the setting for the precision parameter $\beta$ of the Gaussian conditional distribution. Maximizing $(7)$ with respect to $\beta$ yields
+And so we see that the sum-of-squares error function has arisen as a consequence of maximizing the likelihood under the assumption of a Gaussian noise distribution. In fact, for a *Gaussian noise model*, maximum likelihood estimation and least-squares estimation find the same $\mathbf{w}$; in particular, the one that minimizes $(3.4)$. Once we've found the maximum likelihood estimate for $\mathbf{w}$, which we will denote $\mathbf{w}_{\text{ML}}$, we can use it to find the setting for the precision parameter $\beta$ of the Gaussian conditional distribution. Maximizing $(3.3)$ with respect to $\beta$ yields
 
 $$
-\frac{1}{\beta_{\text{ML}}} = \frac{1}{N} \sum_{n=1}^N \{y(x_n, \mathbf{w}_{\text{ML}}) - t_n \}^2. \tag{9}
+\frac{1}{\beta_{\text{ML}}} = \frac{1}{N} \sum_{n=1}^N \{y(x_n, \mathbf{w}_{\text{ML}}) - t_n \}^2. \tag{3.5}
 $$
 
 And so we see that the maximum likelihood procedure yields a variance $\sigma^2$ as equalling the average squared deviation between the observed data points and the function $y(x, \mathbf{w}_{\text{ML}})$. 
 
 #### **3.2.2 Maximum Likelihood's predictive distribution**
 
-The predictive distribution as a result of the maximum likelihood approach amounts to plugging in the maximum likelihood estimates $\mathbf{w}_{\text{ML}}$ and $\beta_{\text{ML}}$ into the observation model $(5)$:
+The predictive distribution as a result of the maximum likelihood approach amounts to plugging in the maximum likelihood estimates $\mathbf{w}_{\text{ML}}$ and $\beta_{\text{ML}}$ into the observation model 3.1:
 
 $$
-p(t|x, \mathbf{w}_{\text{ML}}, \beta_{\text{ML}}) = \mathcal{N}(y(x, \mathbf{w}_{\text{ML}}), \beta^{-1}_{\text{ML}}). \tag{10}
+p(t|x, \mathbf{w}_{\text{ML}}, \beta_{\text{ML}}) = \mathcal{N}(y(x, \mathbf{w}_{\text{ML}}), \beta^{-1}_{\text{ML}}). \tag{3.6}
 $$
 
 
@@ -141,43 +142,54 @@ $$
 Introducing a prior distribution over the parameters $\mathbf{w}$ is a way of introducing our *prior* beliefs (perhaps through domain expertise) about the parameters before observing our dataset. Additionally, as we will see, it serves as a *regularizer* for our estimate of $\mathbf{w}$.  Importantly, it is also one of the components in Bayes' theorem, and takes us a step towards a full Bayesian treatment. For simplicity, we introduce a simple Gaussian prior 
 
 $$
-p(\mathbf{w}| \alpha) = \mathcal{N}(\mathbf{w} | \mathbf{0}, \alpha^{-1} \mathbf{I}) = \left( \frac{\alpha}{2 \pi} \right)^{(M+1) / 2} \text{exp} \left[- \frac{\alpha}{2} \mathbf{w}^{\intercal} \mathbf{w} \right], \tag{11} 
+p(\mathbf{w}| \alpha) = \mathcal{N}(\mathbf{w} | \mathbf{0}, \alpha^{-1} \mathbf{I}) = \left( \frac{\alpha}{2 \pi} \right)^{(M+1) / 2} \text{exp} \left[- \frac{\alpha}{2} \mathbf{w}^{\intercal} \mathbf{w} \right], \tag{3.7} 
 $$ 
 
 where $\alpha$ is the precision of the distribution and $M+1$ is the number of elements in $\mathbf{w}$ for an $M$ order polynomial function. Variables such as $\alpha$ are called *hyperparameters* since we have to choose their values. Now that we have a prior, we can use Bayes' theorem to yield a quantity proportional to the posterior,
 
 
 $$
-\overbrace{ p(\mathbf{w}|\pmb{\mathsf{x}}, \pmb{\mathsf{t}}, \alpha, \beta) }^{\text{Posterior } p(\mathbf{w}|D)} = \frac{\overbrace{p(\pmb{\mathsf{t}}|\pmb{\mathsf{x}}, \mathbf{w}, \beta)}^{\text{Likelihood } p(D|\mathbf{w})} \; \cdot \; \overbrace{p(\mathbf{w}|\alpha)}^{\text{Prior }p(\mathbf{w})}}{\underbrace{p(\pmb{\mathsf{t}}|\pmb{\mathsf{x}})}_{\text{Model Evidence } p(D)}} \propto \overbrace{p(\pmb{\mathsf{t}}|\pmb{\mathsf{x}}, \mathbf{w}, \beta)}^{\text{Likelihood } p(D|\mathbf{w})} \; \cdot \; \overbrace{p(\mathbf{w}|\alpha)}^{\text{Prior }p(\mathbf{w})}, \tag{12}
+\overbrace{ p(\mathbf{w}|\pmb{\mathsf{x}}, \pmb{\mathsf{t}}, \alpha, \beta) }^{\text{Posterior } p(\mathbf{w}|D)} = \frac{\overbrace{p(\pmb{\mathsf{t}}|\pmb{\mathsf{x}}, \mathbf{w}, \beta)}^{\text{Likelihood } p(D|\mathbf{w})} \; \cdot \; \overbrace{p(\mathbf{w}|\alpha)}^{\text{Prior }p(\mathbf{w})}}{\underbrace{p(\pmb{\mathsf{t}}|\pmb{\mathsf{x}})}_{\text{Model Evidence } p(D)}} \propto \overbrace{p(\pmb{\mathsf{t}}|\pmb{\mathsf{x}}, \mathbf{w}, \beta)}^{\text{Likelihood } p(D|\mathbf{w})} \; \cdot \; \overbrace{p(\mathbf{w}|\alpha)}^{\text{Prior }p(\mathbf{w})}, \tag{3.8}
 $$ 
 
-where the proportion relation $\propto$ comes from the fact that the denominator of Bayes' theorem, $p(D) = p(\mathbf{t} | \mathbf{x})$, does not depend on $\mathbf{w}$. Maximizing the right hand size of $(12)$ with respect to $\mathbf{w}$ is equivalent to maximizing the posterior with respect to $\mathbf{w}$ due to the proportionality. By optimizing $\mathbf{w}$ to maximize the posterior, we are finding the most probable parameter values $\mathbf{w}$ considering our observed data and also our prior knowledge about $\mathbf{w}$ encapsulated in the (data independent) prior $p(\mathbf{w} | \alpha)$. This yields a tradeoff between what we believed about $\mathbf{w}$ before seeing our data, and the $\mathbf{w}$ that best fits our data. This technique is referred to *maximum a posteriori estimation*, MAPE, or MAP. 
+where the proportion relation $\propto$ comes from the fact that the denominator of Bayes' theorem, $p(D) = p(\mathbf{t} | \mathbf{x})$, does not depend on $\mathbf{w}$. Maximizing the right hand size of $(3.8)$ with respect to $\mathbf{w}$ is equivalent to maximizing the posterior with respect to $\mathbf{w}$ due to the proportionality. By optimizing $\mathbf{w}$ to maximize the posterior, we are finding the most probable parameter values $\mathbf{w}$ considering our observed data and also our prior knowledge about $\mathbf{w}$ encapsulated in the (data independent) prior $p(\mathbf{w} | \alpha)$. This yields a tradeoff between what we believed about $\mathbf{w}$ before seeing our data, and the $\mathbf{w}$ that best fits our data. This technique is referred to *maximum a posteriori estimation*, MAPE, or MAP. 
 
 
 #### **3.3.1 Maximum a posteriori's connection to Least-Squares**
 
-Taking the negative logarithm of $(12)$ and combining with the log likelihood in $(7)$ and the prior in $(11)$, it can be shown that the maximum of the posterior is equivalenty the minimum of the following expression: 
+Taking the negative logarithm of $(3.8)$ and combining with the log likelihood in $(3.3)$ and the prior in $(3.7)$, it can be shown that the maximum of the posterior is equivalenty the minimum of the following expression: 
 
 $$
-\frac{\beta}{2} \sum_{n=1}^N \{y(x_n, \mathbf{w}) - t_n \}^2 + \frac{\alpha}{2} \mathbf{w}^\intercal \mathbf{w}. \tag{13}
+\frac{\beta}{2} \sum_{n=1}^N \{y(x_n, \mathbf{w}) - t_n \}^2 + \frac{\alpha}{2} \mathbf{w}^\intercal \mathbf{w}. \tag{3.9}
 $$
 
-If we define $\lambda = \alpha / \beta$, we can rewrite $(13)$ as
+If we define $\lambda = \alpha / \beta$, we can rewrite $(3.9)$ as
 
 $$
-\frac{1}{2} \sum_{n=1}^N \{y(x_n, \mathbf{w}) - t_n \}^2 + \frac{\lambda}{2} \mathbf{w}^\intercal \mathbf{w}. \tag{14}
+\frac{1}{2} \sum_{n=1}^N \{y(x_n, \mathbf{w}) - t_n \}^2 + \frac{\lambda}{2} \mathbf{w}^\intercal \mathbf{w}. \tag{3.10}
 $$
 
 
 And so we see that minimizing the regularized sum-of-squares function introduced in $(4)$ arises naturally from maximizing the posterior of a Gaussian noise model with Gaussian prior. 
 
+Similar to the maximum likelihood section, once we've found the maximum a posteriori estimate for $\mathbf{w}$, which we will denote $\mathbf{w}_{\text{MAP}}$, we can use it to find the setting for the precision parameter $\beta$. We did not introduce a prior over $\beta$, so the negative logarithm of $(3.8)$ is
+
+$$
+-\text{ln}[p(\pmb{\mathsf{t}}|\pmb{\mathsf{x}}, \mathbf{w}, \beta) p(\mathbf{w}|\alpha)] = -[\text{ln}p(\pmb{\mathsf{t}}|\pmb{\mathsf{x}}, \mathbf{w}, \beta) + \text{ln} p(\mathbf{w}|\alpha)]. \tag{3.11}
+$$
+
+Since we've only gained an additive term that does not functionally depend on $\beta$, solving for $\beta_{\text{MAP}}$ yields a near-equivalent expression to $(3.5)$ except we now use $\mathbf{w}_{\text{MAP}}$ instead of  $\mathbf{w}_{\text{ML}}$:
+
+$$ 
+\frac{1}{\beta_{\text{MAP}}} = \frac{1}{N} \sum_{n=1}^{N} \{y(x_n, \mathbf{w}_{\text{MAP}}) - t_n\}^2. \tag{3.12}
+$$
 
 #### **3.3.2 Maximum a posteriori's predictive distribution**
 
-Similar to Maximum Likelihood, the result of the *maximum a posteriori estimation* method are point-estimates for the parameters $\mathbf{w}$ and $\beta$. We can similarly plug in those estimates, denoted $\mathbf{w}_{\text{MAP}}$ and $\beta_{\text{MAP}}$, into the observation model $(5)$:
+Similar to Maximum Likelihood, the result of the *maximum a posteriori estimation* method are point-estimates for the parameters $\mathbf{w}$ and $\beta$. We can similarly plug in those estimates, denoted $\mathbf{w}_{\text{MAP}}$ and $\beta_{\text{MAP}}$, into the observation model $(3.1)$:
 
 $$
-p(t|x, \mathbf{w}_{\text{MAP}}, \beta_{\text{MAP}}) = \mathcal{N}(y(x, \mathbf{w}_{\text{MAP}}), \beta^{-1}_{\text{MAP}}). \tag{15}
+p(t|x, \mathbf{w}_{\text{MAP}}, \beta_{\text{MAP}}) = \mathcal{N}(y(x, \mathbf{w}_{\text{MAP}}), \beta^{-1}_{\text{MAP}}). \tag{3.13}
 $$
 
 
@@ -187,20 +199,20 @@ $$
 So far we have been making a point estimate of $\mathbf{w}$ which does not yet amount to a Bayesin treatment. In a Bayesian treatment, we take into account all possible $\mathbf{w}$ that could have explained our data. To predict a new value of $t$ for a new $x$, we marginalize over all possible settings of $\mathbf{w}$, yielding the *posterior predictive distribution* or *Bayesian model average*. The goal of the Bayesian treatment is to compute the posterior over the weights $p(\mathbf{w}|D)$ which represents all possible settings of $\mathbf{w}$ that give rise to models that can explain our observed data $D$. To this end, we must use Bayes' theorem:
 
 $$
-p(\mathbf{w}|D) = \frac{p(D|\mathbf{w})p(\mathbf{w})}{p(D)}. \tag{16}
+p(\mathbf{w}|D) = \frac{p(D|\mathbf{w})p(\mathbf{w})}{p(D)}. \tag{3.14}
 $$
 
-And for our regression problem in particular, $(16)$ can be further specified as
+And for our regression problem in particular, $(3.14)$ can be further specified as
 
 $$
 p(\mathbf{w}|\pmb{\mathsf{t}}, \pmb{\mathsf{x}}, \alpha, \beta) = \frac{\overbrace{p(\pmb{\mathsf{t}} | \pmb{\mathsf{x}}, \mathbf{w}, \beta)}^{\text{Likelihood}} \cdot \overbrace{p(\mathbf{w} | \alpha)}^{\text{Prior}}}{\underbrace{p(\pmb{\mathsf{t}} | \pmb{\mathsf{x}})}_{\text{Evidence}}}.
-\tag{17} 
+\tag{3.15} 
 $$
 
-To simplify this, we will assume the parameters $\alpha$ and $\beta$ are fixed and known in advance, and we will solely focus on the unknown $\mathbf{w}$. $(16)$ then turns into 
+To simplify this, we will assume the parameters $\alpha$ and $\beta$ are fixed and known in advance, and we will solely focus on the unknown $\mathbf{w}$. $(3.15)$ then turns into 
 
 $$
-p(\mathbf{w} \vert \pmb{\mathsf{x}}, \pmb{\mathsf{t}}) = \frac{p(\pmb{\mathsf{t}} \vert \pmb{\mathsf{x}}, \mathbf{w}) \cdot p(\mathbf{w})}{p(\pmb{\mathsf{t}} \vert \pmb{\mathsf{x}})}. \tag{18}
+p(\mathbf{w} \vert \pmb{\mathsf{x}}, \pmb{\mathsf{t}}) = \frac{p(\pmb{\mathsf{t}} \vert \pmb{\mathsf{x}}, \mathbf{w}) \cdot p(\mathbf{w})}{p(\pmb{\mathsf{t}} \vert \pmb{\mathsf{x}})}. \tag{3.16}
 $$
 
 So instead of computing a single *point estimate* of the weights (as we've done thus far); now, given the likelihood and the prior, we can compute the *posterior distribution* over $\mathbf{w}$ via Bayes' rule. Computing the posterior can be facilitated by our choice of prior (a modeling choice) so that we can calculate the posterior in closed form. Those priors are referred to as *conjugate priors*. There are a number of other techniques used to instead *approximate* the posterior $p(\mathbf{w}|\pmb{\mathsf{t}}, \pmb{\mathsf{x}})$ when conjugacy is impossible. These include *variational inference* and *markov chain monte carlo sampling*. Pretty much all posterior approximation methods introduce different ways to circumvent the explicit calculation of the denominator $P(D) = p(\pmb{\mathsf{t}}|\pmb{\mathsf{x}})$ which is intractable for any interesting model. We save all these methods for another post and assume we’ve found the exact posterior.
@@ -210,10 +222,10 @@ So instead of computing a single *point estimate* of the weights (as we've done 
 Once it is found, the posterior represents all possible settings of $\mathbf{w}$ in that they induce models that can explain our data. To incorporate this information into a *predictive distribution* so that we can predict new values of an unobserved $t$ given an unobserved $x$, we marginalize over all possible settings of $\mathbf{w}$ like so:
 
 $$
-p(t|x, \pmb{\mathsf{x}}, \pmb{\mathsf{t}}) = \int p(t|x, \mathbf{w}) p(\mathbf{w}|\pmb{\mathsf{x}}, \pmb{\mathsf{t}}) \text{d}\mathbf{w}, \tag{19}
+p(t|x, \pmb{\mathsf{x}}, \pmb{\mathsf{t}}) = \int p(t|x, \mathbf{w}) p(\mathbf{w}|\pmb{\mathsf{x}}, \pmb{\mathsf{t}}) \text{d}\mathbf{w}, \tag{3.17}
 $$
 
-where $p(t|x, \mathbf{w})$ is our model given by $(5)$ omitting the dependence on $\beta$, and $p(\mathbf{w}|\pmb{\mathsf{x}}, \pmb{\mathsf{t}})$ is the posterior over the weights $\mathbf{w}$. In $(19)$, 
+where $p(t|x, \mathbf{w})$ is our model given by $(3.1)$ omitting the dependence on $\beta$, and $p(\mathbf{w}|\pmb{\mathsf{x}}, \pmb{\mathsf{t}})$ is the posterior over the weights $\mathbf{w}$. In $(3.15)$, 
 
 - we look at a possible setting of $\mathbf{w}$ which we will denote $\mathbf{w}_i$ according to the posterior $p(\mathbf{w}|\pmb{\mathsf{x}}, \pmb{\mathsf{t}})$. Placing $\mathbf{w}_i$ into our observation model $p(t|x, \mathbf{w})$ defines a "fitted model" $p(t|x, \mathbf{w}_i)$. 
 - this "fitted model" is *multiplied* by the probability of that setting of $\mathbf{w}_i$ given by the posterior. In other words, the probability that $p(t|x, \mathbf{w}_i)$ was used to generate our observed data $\pmb{\mathsf{t}}$ from the inputs $\pmb{\mathsf{x}}$.
@@ -223,27 +235,27 @@ Thus, we are taking a weighted average of all possible "fitted models", where th
 
 #### **3.4.2 Analyzing our specific predictive distribution**
 
-We will now analyze the specific form of $(19)$ for our example problem. A consequence of us selecting a Gaussian likelihood and a Gaussian prior is that we can analytically compute the posterior; and it is Gaussian as well -- an example of *conjugacy*. More so, we can analytically solve the integration in $(19)$ to get a predictive distribution that itself is Gaussian. In fact, it takes on the more specific form
+We will now analyze the specific form of $(3.17)$ for our example problem. A consequence of us selecting a Gaussian likelihood and a Gaussian prior is that we can analytically compute the posterior; and it is Gaussian as well -- an example of *conjugacy*. More so, we can analytically solve the integration in $(3.17)$ to get a predictive distribution that itself is Gaussian. In fact, it takes on the more specific form
 
 $$
-p(t|x, \pmb{\mathsf{x}}, \pmb{\mathsf{t}}) = \mathcal{N}(t|m(x), s^2(x)), \tag{20}
+p(t|x, \pmb{\mathsf{x}}, \pmb{\mathsf{t}}) = \mathcal{N}(t|m(x), s^2(x)), \tag{3.18}
 $$
 
 where the mean and variance are given by 
 
 \begin{align}
-&m(x) = \beta \pmb{\phi}(x)^{\intercal} \mathbf{S} \sum_{n=1}^N \pmb{\phi}(x_n) t_n \tag{21} \\
-& s^2(x) = \overbrace{\beta^{-1}}^{\text{noise}} + \underbrace{\pmb{\phi}(x)^\intercal \mathbf{S} \pmb{\phi}(x)}_{\text{Parameter Uncertainty}} \tag{22}
+&m(x) = \beta \pmb{\phi}(x)^{\intercal} \mathbf{S} \sum_{n=1}^N \pmb{\phi}(x_n) t_n \tag{3.19} \\
+& s^2(x) = \overbrace{\beta^{-1}}^{\text{noise}} + \underbrace{\pmb{\phi}(x)^\intercal \mathbf{S} \pmb{\phi}(x)}_{\text{Parameter Uncertainty}} \tag{3.20}
 \end{align}
 
 
 $\mathbf{S}$ is a matrix, and is given by
 
 $$
-\mathbf{S}^{-1} = \alpha \mathbf{I} + \beta \sum_{n=1}^N \pmb{\phi}(x_n)  \pmb{\phi}(x),^\intercal \tag{21}
+\mathbf{S}^{-1} = \alpha \mathbf{I} + \beta \sum_{n=1}^N \pmb{\phi}(x_n)  \pmb{\phi}(x),^\intercal \tag{3.21}
 $$
 
-where $\mathbf{I}$ is the unit matrix, and we have defined the vector $\pmb{\phi}(x)$ with elements $\phi_i(x) = x^i$ for $i=0,...,M$. In looking at the predictive distribution $(20)$, we now see that the variance depends on $x$. This is *unlike* the maximum likelihood predictive distribution $(10)$ and the maximum a posteriori predictive distribution $(15)$ where the variance is fixed for any value of $x$. It's expansion is described by $(22)$ and it contains two additive components. The first component, as was already expressed in the maximum likelihood predictive distribution $\beta_{\text{ML}}$, is the noise on the target variables. The second component, which *has not* been expressed until now, arises from the *uncertainty in the parameters* $\mathbf{w}$ and is a consequence of treating $\mathbf{w}$ as a random variable -- an artifact of the Bayesian treatment.
+where $\mathbf{I}$ is the unit matrix, and we have defined the vector $\pmb{\phi}(x)$ with elements $\phi_i(x) = x^i$ for $i=0,...,M$. In looking at the predictive distribution $(3.16)$, we now see that the variance depends on $x$. This is *unlike* the maximum likelihood predictive distribution $(3.6)$ and the maximum a posteriori predictive distribution $(3.13)$ where the variance is fixed for any value of $x$. It's expansion is described by $(3.20)$ and it contains two additive components. The first component, as was already expressed in the maximum likelihood predictive distribution $\beta_{\text{ML}}$, is the noise on the target variables. The second component, which *has not* been expressed until now, arises from the *uncertainty in the parameters* $\mathbf{w}$ and is a consequence of treating $\mathbf{w}$ as a random variable -- an artifact of the Bayesian treatment.
 
 # References
 
