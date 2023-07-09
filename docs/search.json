@@ -96,5 +96,12 @@
     "title": "About",
     "section": "",
     "text": "About this blog"
+  },
+  {
+    "objectID": "posts/curve_fitting/index.html#conditional-models",
+    "href": "posts/curve_fitting/index.html#conditional-models",
+    "title": "Approaches to Curve Fitting",
+    "section": "1.1 Conditional Models",
+    "text": "1.1 Conditional Models\nLet \\(t\\) represent the observed variable whose distribution we would like to model, and \\(x\\) represent an observed input variable which we believe \\(t\\) is related to. We assume \\(t\\) is a random sample from an unknown underlying process, whose true (probability) distribution \\(p^{*}(t|x)\\) is unknown. In curve fitting, we are interested in building a conditional model \\(p(t|x)\\) that approximates the underlying conditional distribution \\(p^{*}(t|x)\\): a distribution over \\(t\\), conditioned on the value of an observed variable \\(x\\).\nIn a canonical scenario, we have a real-valued variable \\(t\\) and we’d like to model it. Simply put, we’d like to describe a mathematical process describing the creation of \\(t\\). Once we build such a model we can gather insights and make predictions. In this post, we consider the supervised setting where we model a target \\(t\\) as a function of some observed input \\(x\\). To this end, we have gathered data\n\\[\n\\pmb{\\mathsf{x}} = \\{x_1, x_2, ..., x_N\\}^\\intercal, \\; \\pmb{\\mathsf{t}} = \\{t_1, t_2, ..., t_N\\}^\\intercal.\n\\]\nWe assume these data are a result of idependently sampling from some unknown distributions \\(p(t)\\) and \\(p(x)\\) respectively. In this post, we will consider synthetic data where the true underlying data generating process is\n\\[\nt = \\text{sin}(2 \\pi x) + \\mathcal{N}(0, \\beta^{-1}), \\tag{1.1}\n\\]\nwhere we’ve denoted the variance as \\(\\beta^{-1}\\) so that \\(\\beta = 1 / \\sigma^2\\) which we call the precision. The goal is to exploit our observed data \\(\\{ \\pmb{\\mathsf{x}}, \\pmb{\\mathsf{t}} \\}\\) to create a model of the underlying generative (and random) function \\((1.1)\\) so that we can then do something useful – for example, predict an unobserved value of \\(t\\) for a new observed value of \\(x\\). The type of modeling discussed in this post is referred to as parametric because, as we shall see, we predefine a family of data-generating functions and then tune the parameters governing those functions according to how well the resultant function explains our observed dataset."
   }
 ]
