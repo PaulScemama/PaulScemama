@@ -10,7 +10,12 @@ max-width: 10em
 toc: true
 ---
 
+# Preface
+
+This post aims to introduce different approaches to curve fitting, and in particular, different *parametric* approaches to curve fitting. It follows closely section 1.2.5 from Bishop's *Pattern Recognition and Machine Learning*, where I expand on some of the more vague concepts introduced. The goal is to see how incorporating particular assumptions into the probabilistic model leads to instances of deterministic approaches. Finally, the Appendix contains some extra derivations and code to "actually do" the curve fitting. 
+
 # 1 Introduction
+
 
 In a canonical scenario, we observe a real-valued variable $t$ and we'd like to *model* it. Simply put, we'd like to describe a mathematical process describing the creation of $t$. Once we build such a model we can gather insights and make predictions. In this post, we consider the supervised setting where we model a target variable $t$ as a function of some observed input variable $x$. To this end, we have gathered a set of $N$ realizations $t_n$ of $t$ together with a corresponding set of realizations $x_n$ of $x$,
 
@@ -21,14 +26,15 @@ $$
 In this post, we will consider synthetic data where the underlying data generating process is  
 
 $$
-y = \text{sin}(2 \pi x) + \mathcal{N}(0, \beta^{-1}), \tag{1.1}
+t = \text{sin}(2 \pi x) + \mathcal{N}(0, \beta^{-1}), \tag{1.1}
 $$
 
 
-where we've denoted the variance as $\beta^{-1}$ so that $\beta = 1 / \sigma^2$ which we call the *precision*. The goal is to exploit our observed data $\{ \pmb{\mathsf{x}}, \pmb{\mathsf{t}} \}$ to create a model of the *underlying generative (and random) function* $(1)$ to then do something useful -- for example, predict an unobserved value of $t$ for a new observed value of $x$. The type of modeling discussed in this post is referred to as *parametric* because, as shall be seen, we predefine a family of data-generating functions and then tune the *parameters* governing those functions according to how well the resultant function explains our observed dataset. 
+where we've denoted the variance as $\beta^{-1}$ so that $\beta = 1 / \sigma^2$ which we call the *precision*. The goal is to exploit our observed data $\{ \pmb{\mathsf{x}}, \pmb{\mathsf{t}} \}$ to create a model of the underlying generative (and random) function $(1.1)$ so that we can then do something useful -- for example, predict an unobserved value of $t$ for a new observed value of $x$. The type of modeling discussed in this post is referred to as *parametric* because, as we shall see, we predefine a family of data-generating functions and then tune the *parameters* governing those functions according to how well the resultant function explains our observed dataset. 
 
 
 # 2 The Deterministic Approach
+
 
 ## 2.1 The Model
 
@@ -48,7 +54,7 @@ $$
 E(\mathbf{w}) = \frac{1}{2} \sum_{n=1}^N \{y(x_n, \mathbf{w}) - t_n \}^2. \tag{2.2}
 $$ 
 
-The value of $E(\mathbf{w})$ is always non-negative and is zero only when $y(x, \mathbf{w})$ passes exactly through every training point. Using the error function $(3)$ in order to find the parameter values for $\mathbf{w}$ is called the method of *least-squares*. It is visualized in Figure 1.
+The value of $E(\mathbf{w})$ is always non-negative and is zero only when $y(x, \mathbf{w})$ passes exactly through every training point. Using the error function $(2.2)$ in order to find the parameter values for $\mathbf{w}$ is called the method of *least-squares*. It is visualized in Figure 1.
 
 ![Figure 1: The sum-of-squares error function in $(3)$ is computed by taking one half the sum of the squared distances of each data point from the function $y(x, \mathbf{w})$. These displacements are shown in red.](./img/sum_of_squares.png){width=400}
 
@@ -72,7 +78,7 @@ where $\lVert \mathbf{w} \rVert^2 = \mathbf{w}^\intercal \mathbf{w} = w_0^2 + w_
 
 In the deterministic approach we assumed $t$ to be the result of a deterministic function of $x$ and unknown parameters $\mathbf{w}$. We now consider a *probabilistic* model so that we can express uncertainty in our predictions. 
 
-We may not want to make such a strong statement as saying $t$ *is exactly* equal to $y(x, \mathbf{w})$ as we did in the previous section. This could be because we think there is noise in the observations $\pmb{\mathsf{t}}$, for example due to measurement error. To articulate this assumed reality we need to place a distribution over the target variable $t$. A sensible distributional assumption is to place a Gaussian distribution over $t$ with its mean given by the parameterized function $y(x, \mathbf{w})$ and its variance being fixed and unknown. This is visualized in Figure 2. 
+We may not want to make such a strong statement as saying "$t$ is exactly equal to $y(x, \mathbf{w})$" as we did in the previous section. This could be because we think there is noise in the observations $\pmb{\mathsf{t}}$, for example due to measurement error. To articulate this assumed reality we need to place a distribution over the target variable $t$. A sensible distributional assumption is to place a Gaussian distribution over $t$ with its mean given by the parameterized function $y(x, \mathbf{w})$ and its variance being fixed and unknown. This is visualized in Figure 2. 
 
 ![Figure 2: Illustration of a Gaussian conditional distribution over $t$ conditioned on $x$ where the mean of the distribution is given by some function of $x$, and the variance is fixed](./img/gaussian_noise_model.png){width=400}
 
@@ -172,10 +178,10 @@ $$
 
 And so we see that minimizing the regularized sum-of-squares function introduced in $(4)$ arises naturally from maximizing the posterior of a Gaussian noise model with Gaussian prior. 
 
-Similar to the maximum likelihood section, once we've found the maximum a posteriori estimate for $\mathbf{w}$, which we will denote $\mathbf{w}_{\text{MAP}}$, we can use it to find the setting for the precision parameter $\beta$. We did not introduce a prior over $\beta$, so the negative logarithm of $(3.8)$ is
+Similar to the maximum likelihood section, once we've found the maximum a posteriori estimate for $\mathbf{w}$, which we will denote $\mathbf{w}_{\text{MAP}}$, we can use it to find the setting for the precision parameter $\beta$. We did not introduce a prior over $\beta$, so the negative logarithm of the right-hand-side of $(3.8)$ is
 
 $$
--\text{ln}[p(\pmb{\mathsf{t}}|\pmb{\mathsf{x}}, \mathbf{w}, \beta) p(\mathbf{w}|\alpha)] = -[\text{ln}p(\pmb{\mathsf{t}}|\pmb{\mathsf{x}}, \mathbf{w}, \beta) + \text{ln} p(\mathbf{w}|\alpha)]. \tag{3.11}
+-\text{ln} \left[ \: p(\pmb{\mathsf{t}}|\pmb{\mathsf{x}}, \mathbf{w}, \beta) p(\mathbf{w}|\alpha)  \: \right] = -[ \: \text{ln}p(\pmb{\mathsf{t}}|\pmb{\mathsf{x}}, \mathbf{w}, \beta) + \text{ln} p(\mathbf{w}|\alpha) \: ]. \tag{3.11}
 $$
 
 Since we've only gained an additive term that does not functionally depend on $\beta$, solving for $\beta_{\text{MAP}}$ yields a near-equivalent expression to $(3.5)$ except we now use $\mathbf{w}_{\text{MAP}}$ instead of  $\mathbf{w}_{\text{ML}}$:
@@ -257,6 +263,14 @@ $$
 
 where $\mathbf{I}$ is the unit matrix, and we have defined the vector $\pmb{\phi}(x)$ with elements $\phi_i(x) = x^i$ for $i=0,...,M$. In looking at the predictive distribution $(3.16)$, we now see that the variance depends on $x$. This is *unlike* the maximum likelihood predictive distribution $(3.6)$ and the maximum a posteriori predictive distribution $(3.13)$ where the variance is fixed for any value of $x$. It's expansion is described by $(3.20)$ and it contains two additive components. The first component, as was already expressed in the maximum likelihood predictive distribution $\beta_{\text{ML}}$, is the noise on the target variables. The second component, which *has not* been expressed until now, arises from the *uncertainty in the parameters* $\mathbf{w}$ and is a consequence of treating $\mathbf{w}$ as a random variable -- an artifact of the Bayesian treatment.
 
+# 4 Summary
+
+- If we assume a Gaussian noise observation model and use maximum likelihood to find the setting for the parameters $\mathbf{w}$, it is equivalent to using least-squares to find $\mathbf{w}$. 
+
+- If we assume a Gaussian noise observation model and an Isotropic Gaussian prior model on $\mathbf{w}$, and then use maximum a posteriori to find the setting for $\mathbf{w}$, it is equivalent to using least-squares with weight decay regularization to find $\mathbf{w}$. 
+
+- If we assume a Gaussian noise observation model and an Isotropic Gaussian prior model on $\mathbf{w}$, and then we use the Bayesian approach, we do not find a setting for $\mathbf{w}$, but rather a distribution over $\mathbf{w}$. This allows us to introduce parameter uncertainty in our predictive distribution -- a result of many different settings of $\mathbf{w}$ that could explain the training data. 
+
 # References
 
 [*Pattern Recognition and Machine Learning*](https://www.microsoft.com/en-us/research/uploads/prod/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf), **Christopher M. Bishop**, 2006
@@ -295,22 +309,16 @@ $$
 
 Substituting back into $(1)$ yields
 
-<!---Equations---> 
-\begin{align}
-\frac{\partial E(\mathbf{w})}{\partial w_i} & = \sum_{n=1}^N \{y(x_n, \mathbf{w}) - t_n \} x_n^i \tag{i} \\ 
-& = \sum_{n=1}^N (\sum_{j=0}^M w_j x_n^{j} - t_n)x_n^i \tag{ii}\\
-& = \sum_{n=1}^N (\sum_{j=0}^M w_j x_n^{i}x_n^j - t_n x_n^i) \tag{iii}\\
-& = \sum_{n=1}^N (\sum_{j=0}^M w_j x_n^{(i+j)} - t_n x_n^i) \tag{iv}
-\end{align}
+$$
+\begin{aligned}
+\frac{\partial E(\mathbf{w})}{\partial w_i} & = \sum_{n=1}^N \{y(x_n, \mathbf{w}) - t_n \} x_n^i \\ 
+& \overset{(i)}{=} \sum_{n=1}^N (\sum_{j=0}^M w_j x_n^{j} - t_n)x_n^i \\
+& \overset{(ii)}{=} \sum_{n=1}^N (\sum_{j=0}^M w_j x_n^{i}x_n^j - t_n x_n^i) \\
+& \overset{(iii)}{=} \sum_{n=1}^N (\sum_{j=0}^M w_j x_n^{(i+j)} - t_n x_n^i)
+\end{aligned}
+$$
 
-> - $(\text{i}) - (\text{ii})$: definition of $y(x_n, \mathbf{w})$.
->
-> - $(\text{ii})-(\text{iii})$: distribute $x_n^i$ into the parentheses.
->
-> - $(\text{iii})-(\text{iv})$: exponent rule. 
-<!-------------> 
-
-Setting the derivative to $0$ and rearranging,
+where in $(\text{i})$ we use the definition of $y(x_n, \mathbf{w})$, in $(\text{ii})$ we distribute $x_n^i$ into the parentheses, and in $(\text{iii})$ we use the exponent rule. Setting the derivative to $0$ and rearranging,
 
 $$
 \begin{aligned}
@@ -412,22 +420,16 @@ $$
 
 Substituting back into $(2)$ yields
 
-<!----------Equations--------------->
-\begin{align}
-\frac{\partial \overset{\sim}{E}(\mathbf{w})}{\partial w_i} & = \sum_{n=1}^N \{y(x_n, \mathbf{w}) - t_n \} x_n^i + \frac{\lambda}{2} 2 w_i \tag{i}\\
-& = \sum_{n=1}^N (\sum_{j=0}^M w_j x_n^{j} - t_n)x_n^i + \lambda w_i \tag{ii} \\
-& = \sum_{n=1}^N (\sum_{j=0}^M w_j x_n^{i}x_n^j - t_n x_n^i) + \lambda w_i \tag{iii} \\
-& = \sum_{n=1}^N (\sum_{j=0}^M w_j x_n^{(i+j)} - t_n x_n^i) + \lambda w_i \tag{iv}
-\end{align}
+$$
+\begin{aligned}
+\frac{\partial \overset{\sim}{E}(\mathbf{w})}{\partial w_i} & = \sum_{n=1}^N \{y(x_n, \mathbf{w}) - t_n \} x_n^i + \frac{\lambda}{2} 2 w_i \\
+& \overset{(i)}{=} \sum_{n=1}^N (\sum_{j=0}^M w_j x_n^{j} - t_n)x_n^i + \lambda w_i  \\
+& \overset{(ii)}{=} \sum_{n=1}^N (\sum_{j=0}^M w_j x_n^{i}x_n^j - t_n x_n^i) + \lambda w_i  \\
+& \overset{(iii)}{=} \sum_{n=1}^N (\sum_{j=0}^M w_j x_n^{(i+j)} - t_n x_n^i) + \lambda w_i 
+\end{aligned}
+$$
 
-> - $(\text{i}) - (\text{ii})$: definition of $y(x_n, \mathbf{w})$ and $\frac{\lambda}{2} \cdot 2 = \lambda$.
->
-> - $(\text{ii})-(\text{iii})$: distribute $x_n^i$ into the parentheses.
->
-> - $(\text{iii})-(\text{iv})$: exponent rule. 
-<!------------------------------------>
-
-Setting the derivative to $0$ and rearranging,
+where in $(\text{i})$ we use the definition of $y(x_n, \mathbf{w})$ and $\frac{\lambda}{2} \cdot 2 = \lambda$, in $(\text{ii})$ we distribute $x_n^i$ into the parentheses, and in $(\text{iii})$ we use the exponent rule. Setting the derivative to $0$ and rearranging,
 
 $$
 \begin{aligned}

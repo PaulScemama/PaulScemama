@@ -169,7 +169,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">1 Introduction</a></li>
+  <li><a href="#preface" id="toc-preface" class="nav-link active" data-scroll-target="#preface">Preface</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction">1 Introduction</a></li>
   <li><a href="#the-deterministic-approach" id="toc-the-deterministic-approach" class="nav-link" data-scroll-target="#the-deterministic-approach">2 The Deterministic Approach</a>
   <ul class="collapse">
   <li><a href="#the-model" id="toc-the-model" class="nav-link" data-scroll-target="#the-model">2.1 The Model</a></li>
@@ -183,6 +184,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#maximum-a-posteriori-estimation" id="toc-maximum-a-posteriori-estimation" class="nav-link" data-scroll-target="#maximum-a-posteriori-estimation">3.3 Maximum a posteriori Estimation</a></li>
   <li><a href="#bayesian-estimation" id="toc-bayesian-estimation" class="nav-link" data-scroll-target="#bayesian-estimation">3.4 Bayesian Estimation</a></li>
   </ul></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">4 Summary</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   <li><a href="#appendix" id="toc-appendix" class="nav-link" data-scroll-target="#appendix">Appendix</a>
   <ul class="collapse">
@@ -198,6 +200,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
+<section id="preface" class="level1">
+<h1>Preface</h1>
+<p>This post aims to introduce different approaches to curve fitting, and in particular, different <em>parametric</em> approaches to curve fitting. It follows closely section 1.2.5 from Bishop’s <em>Pattern Recognition and Machine Learning</em>, where I expand on some of the more vague concepts introduced. The goal is to see how incorporating particular assumptions into the probabilistic model leads to instances of deterministic approaches. Finally, the Appendix contains some extra derivations and code to “actually do” the curve fitting.</p>
+</section>
 <section id="introduction" class="level1">
 <h1>1 Introduction</h1>
 <p>In a canonical scenario, we observe a real-valued variable <span class="math inline">\(t\)</span> and we’d like to <em>model</em> it. Simply put, we’d like to describe a mathematical process describing the creation of <span class="math inline">\(t\)</span>. Once we build such a model we can gather insights and make predictions. In this post, we consider the supervised setting where we model a target variable <span class="math inline">\(t\)</span> as a function of some observed input variable <span class="math inline">\(x\)</span>. To this end, we have gathered a set of <span class="math inline">\(N\)</span> realizations <span class="math inline">\(t_n\)</span> of <span class="math inline">\(t\)</span> together with a corresponding set of realizations <span class="math inline">\(x_n\)</span> of <span class="math inline">\(x\)</span>,</p>
@@ -206,9 +212,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 \]</span></p>
 <p>In this post, we will consider synthetic data where the underlying data generating process is</p>
 <p><span class="math display">\[
-y = \text{sin}(2 \pi x) + \mathcal{N}(0, \beta^{-1}), \tag{1.1}
+t = \text{sin}(2 \pi x) + \mathcal{N}(0, \beta^{-1}), \tag{1.1}
 \]</span></p>
-<p>where we’ve denoted the variance as <span class="math inline">\(\beta^{-1}\)</span> so that <span class="math inline">\(\beta = 1 / \sigma^2\)</span> which we call the <em>precision</em>. The goal is to exploit our observed data <span class="math inline">\(\{ \pmb{\mathsf{x}}, \pmb{\mathsf{t}} \}\)</span> to create a model of the <em>underlying generative (and random) function</em> <span class="math inline">\((1)\)</span> to then do something useful – for example, predict an unobserved value of <span class="math inline">\(t\)</span> for a new observed value of <span class="math inline">\(x\)</span>. The type of modeling discussed in this post is referred to as <em>parametric</em> because, as shall be seen, we predefine a family of data-generating functions and then tune the <em>parameters</em> governing those functions according to how well the resultant function explains our observed dataset.</p>
+<p>where we’ve denoted the variance as <span class="math inline">\(\beta^{-1}\)</span> so that <span class="math inline">\(\beta = 1 / \sigma^2\)</span> which we call the <em>precision</em>. The goal is to exploit our observed data <span class="math inline">\(\{ \pmb{\mathsf{x}}, \pmb{\mathsf{t}} \}\)</span> to create a model of the underlying generative (and random) function <span class="math inline">\((1.1)\)</span> so that we can then do something useful – for example, predict an unobserved value of <span class="math inline">\(t\)</span> for a new observed value of <span class="math inline">\(x\)</span>. The type of modeling discussed in this post is referred to as <em>parametric</em> because, as we shall see, we predefine a family of data-generating functions and then tune the <em>parameters</em> governing those functions according to how well the resultant function explains our observed dataset.</p>
 </section>
 <section id="the-deterministic-approach" class="level1">
 <h1>2 The Deterministic Approach</h1>
@@ -226,7 +232,7 @@ y(x, \mathbf{w}) = w_0 + w_1x + w_2x^2 + \dots + w_Mx^M = \sum_{j=0}^M w_j x^j, 
 <p><span class="math display">\[
 E(\mathbf{w}) = \frac{1}{2} \sum_{n=1}^N \{y(x_n, \mathbf{w}) - t_n \}^2. \tag{2.2}
 \]</span></p>
-<p>The value of <span class="math inline">\(E(\mathbf{w})\)</span> is always non-negative and is zero only when <span class="math inline">\(y(x, \mathbf{w})\)</span> passes exactly through every training point. Using the error function <span class="math inline">\((3)\)</span> in order to find the parameter values for <span class="math inline">\(\mathbf{w}\)</span> is called the method of <em>least-squares</em>. It is visualized in Figure 1.</p>
+<p>The value of <span class="math inline">\(E(\mathbf{w})\)</span> is always non-negative and is zero only when <span class="math inline">\(y(x, \mathbf{w})\)</span> passes exactly through every training point. Using the error function <span class="math inline">\((2.2)\)</span> in order to find the parameter values for <span class="math inline">\(\mathbf{w}\)</span> is called the method of <em>least-squares</em>. It is visualized in Figure 1.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="./img/sum_of_squares.png" class="img-fluid figure-img" width="400"></p>
@@ -250,7 +256,7 @@ E(\mathbf{w}) = \frac{1}{2} \sum_{n=1}^N \{y(x_n, \mathbf{w}) - t_n \}^2. \tag{2
 <section id="the-model-1" class="level2">
 <h2 class="anchored" data-anchor-id="the-model-1">3.1 The Model</h2>
 <p>In the deterministic approach we assumed <span class="math inline">\(t\)</span> to be the result of a deterministic function of <span class="math inline">\(x\)</span> and unknown parameters <span class="math inline">\(\mathbf{w}\)</span>. We now consider a <em>probabilistic</em> model so that we can express uncertainty in our predictions.</p>
-<p>We may not want to make such a strong statement as saying <span class="math inline">\(t\)</span> <em>is exactly</em> equal to <span class="math inline">\(y(x, \mathbf{w})\)</span> as we did in the previous section. This could be because we think there is noise in the observations <span class="math inline">\(\pmb{\mathsf{t}}\)</span>, for example due to measurement error. To articulate this assumed reality we need to place a distribution over the target variable <span class="math inline">\(t\)</span>. A sensible distributional assumption is to place a Gaussian distribution over <span class="math inline">\(t\)</span> with its mean given by the parameterized function <span class="math inline">\(y(x, \mathbf{w})\)</span> and its variance being fixed and unknown. This is visualized in Figure 2.</p>
+<p>We may not want to make such a strong statement as saying “<span class="math inline">\(t\)</span> is exactly equal to <span class="math inline">\(y(x, \mathbf{w})\)</span>” as we did in the previous section. This could be because we think there is noise in the observations <span class="math inline">\(\pmb{\mathsf{t}}\)</span>, for example due to measurement error. To articulate this assumed reality we need to place a distribution over the target variable <span class="math inline">\(t\)</span>. A sensible distributional assumption is to place a Gaussian distribution over <span class="math inline">\(t\)</span> with its mean given by the parameterized function <span class="math inline">\(y(x, \mathbf{w})\)</span> and its variance being fixed and unknown. This is visualized in Figure 2.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="./img/gaussian_noise_model.png" class="img-fluid figure-img" width="400"></p>
@@ -330,9 +336,9 @@ p(\mathbf{w}| \alpha) = \mathcal{N}(\mathbf{w} | \mathbf{0}, \alpha^{-1} \mathbf
 \frac{1}{2} \sum_{n=1}^N \{y(x_n, \mathbf{w}) - t_n \}^2 + \frac{\lambda}{2} \mathbf{w}^\intercal \mathbf{w}. \tag{3.10}
 \]</span></p>
 <p>And so we see that minimizing the regularized sum-of-squares function introduced in <span class="math inline">\((4)\)</span> arises naturally from maximizing the posterior of a Gaussian noise model with Gaussian prior.</p>
-<p>Similar to the maximum likelihood section, once we’ve found the maximum a posteriori estimate for <span class="math inline">\(\mathbf{w}\)</span>, which we will denote <span class="math inline">\(\mathbf{w}_{\text{MAP}}\)</span>, we can use it to find the setting for the precision parameter <span class="math inline">\(\beta\)</span>. We did not introduce a prior over <span class="math inline">\(\beta\)</span>, so the negative logarithm of <span class="math inline">\((3.8)\)</span> is</p>
+<p>Similar to the maximum likelihood section, once we’ve found the maximum a posteriori estimate for <span class="math inline">\(\mathbf{w}\)</span>, which we will denote <span class="math inline">\(\mathbf{w}_{\text{MAP}}\)</span>, we can use it to find the setting for the precision parameter <span class="math inline">\(\beta\)</span>. We did not introduce a prior over <span class="math inline">\(\beta\)</span>, so the negative logarithm of the right-hand-side of <span class="math inline">\((3.8)\)</span> is</p>
 <p><span class="math display">\[
--\text{ln}[p(\pmb{\mathsf{t}}|\pmb{\mathsf{x}}, \mathbf{w}, \beta) p(\mathbf{w}|\alpha)] = -[\text{ln}p(\pmb{\mathsf{t}}|\pmb{\mathsf{x}}, \mathbf{w}, \beta) + \text{ln} p(\mathbf{w}|\alpha)]. \tag{3.11}
+-\text{ln} \left[ \: p(\pmb{\mathsf{t}}|\pmb{\mathsf{x}}, \mathbf{w}, \beta) p(\mathbf{w}|\alpha)  \: \right] = -[ \: \text{ln}p(\pmb{\mathsf{t}}|\pmb{\mathsf{x}}, \mathbf{w}, \beta) + \text{ln} p(\mathbf{w}|\alpha) \: ]. \tag{3.11}
 \]</span></p>
 <p>Since we’ve only gained an additive term that does not functionally depend on <span class="math inline">\(\beta\)</span>, solving for <span class="math inline">\(\beta_{\text{MAP}}\)</span> yields a near-equivalent expression to <span class="math inline">\((3.5)\)</span> except we now use <span class="math inline">\(\mathbf{w}_{\text{MAP}}\)</span> instead of <span class="math inline">\(\mathbf{w}_{\text{ML}}\)</span>:</p>
 <p><span class="math display">\[
@@ -396,6 +402,14 @@ p(t|x, \pmb{\mathsf{x}}, \pmb{\mathsf{t}}) = \mathcal{N}(t|m(x), s^2(x)), \tag{3
 </section>
 </section>
 </section>
+<section id="summary" class="level1">
+<h1>4 Summary</h1>
+<ul>
+<li><p>If we assume a Gaussian noise observation model and use maximum likelihood to find the setting for the parameters <span class="math inline">\(\mathbf{w}\)</span>, it is equivalent to using least-squares to find <span class="math inline">\(\mathbf{w}\)</span>.</p></li>
+<li><p>If we assume a Gaussian noise observation model and an Isotropic Gaussian prior model on <span class="math inline">\(\mathbf{w}\)</span>, and then use maximum a posteriori to find the setting for <span class="math inline">\(\mathbf{w}\)</span>, it is equivalent to using least-squares with weight decay regularization to find <span class="math inline">\(\mathbf{w}\)</span>.</p></li>
+<li><p>If we assume a Gaussian noise observation model and an Isotropic Gaussian prior model on <span class="math inline">\(\mathbf{w}\)</span>, and then we use the Bayesian approach, we do not find a setting for <span class="math inline">\(\mathbf{w}\)</span>, but rather a distribution over <span class="math inline">\(\mathbf{w}\)</span>. This allows us to introduce parameter uncertainty in our predictive distribution – a result of many different settings of <span class="math inline">\(\mathbf{w}\)</span> that could explain the training data.</p></li>
+</ul>
+</section>
 <section id="references" class="level1">
 <h1>References</h1>
 <p><a href="https://www.microsoft.com/en-us/research/uploads/prod/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf"><em>Pattern Recognition and Machine Learning</em></a>, <strong>Christopher M. Bishop</strong>, 2006</p>
@@ -425,21 +439,15 @@ p(t|x, \pmb{\mathsf{x}}, \pmb{\mathsf{t}}) = \mathcal{N}(t|m(x), s^2(x)), \tag{3
 \end{aligned}
 \]</span></p>
 <p>Substituting back into <span class="math inline">\((1)\)</span> yields</p>
-<!---Equations--->
-<p><span class="math display">\[\begin{align}
-\frac{\partial E(\mathbf{w})}{\partial w_i} &amp; = \sum_{n=1}^N \{y(x_n, \mathbf{w}) - t_n \} x_n^i \tag{i} \\
-&amp; = \sum_{n=1}^N (\sum_{j=0}^M w_j x_n^{j} - t_n)x_n^i \tag{ii}\\
-&amp; = \sum_{n=1}^N (\sum_{j=0}^M w_j x_n^{i}x_n^j - t_n x_n^i) \tag{iii}\\
-&amp; = \sum_{n=1}^N (\sum_{j=0}^M w_j x_n^{(i+j)} - t_n x_n^i) \tag{iv}
-\end{align}\]</span></p>
-<blockquote class="blockquote">
-<ul>
-<li><p><span class="math inline">\((\text{i}) - (\text{ii})\)</span>: definition of <span class="math inline">\(y(x_n, \mathbf{w})\)</span>.</p></li>
-<li><p><span class="math inline">\((\text{ii})-(\text{iii})\)</span>: distribute <span class="math inline">\(x_n^i\)</span> into the parentheses.</p></li>
-<li><p><span class="math inline">\((\text{iii})-(\text{iv})\)</span>: exponent rule. <!-------------></p></li>
-</ul>
-</blockquote>
-<p>Setting the derivative to <span class="math inline">\(0\)</span> and rearranging,</p>
+<p><span class="math display">\[
+\begin{aligned}
+\frac{\partial E(\mathbf{w})}{\partial w_i} &amp; = \sum_{n=1}^N \{y(x_n, \mathbf{w}) - t_n \} x_n^i \\
+&amp; \overset{(i)}{=} \sum_{n=1}^N (\sum_{j=0}^M w_j x_n^{j} - t_n)x_n^i \\
+&amp; \overset{(ii)}{=} \sum_{n=1}^N (\sum_{j=0}^M w_j x_n^{i}x_n^j - t_n x_n^i) \\
+&amp; \overset{(iii)}{=} \sum_{n=1}^N (\sum_{j=0}^M w_j x_n^{(i+j)} - t_n x_n^i)
+\end{aligned}
+\]</span></p>
+<p>where in <span class="math inline">\((\text{i})\)</span> we use the definition of <span class="math inline">\(y(x_n, \mathbf{w})\)</span>, in <span class="math inline">\((\text{ii})\)</span> we distribute <span class="math inline">\(x_n^i\)</span> into the parentheses, and in <span class="math inline">\((\text{iii})\)</span> we use the exponent rule. Setting the derivative to <span class="math inline">\(0\)</span> and rearranging,</p>
 <p><span class="math display">\[
 \begin{aligned}
 \sum_{n=1}^N (\sum_{j=0}^M w_j x_n^{(i+j)} - t_n x_n^i) &amp; = 0 \\
@@ -535,21 +543,15 @@ p(t|x, \pmb{\mathsf{x}}, \pmb{\mathsf{t}}) = \mathcal{N}(t|m(x), s^2(x)), \tag{3
 \end{aligned}
 \]</span></p>
 <p>Substituting back into <span class="math inline">\((2)\)</span> yields</p>
-<!----------Equations--------------->
-<p><span class="math display">\[\begin{align}
-\frac{\partial \overset{\sim}{E}(\mathbf{w})}{\partial w_i} &amp; = \sum_{n=1}^N \{y(x_n, \mathbf{w}) - t_n \} x_n^i + \frac{\lambda}{2} 2 w_i \tag{i}\\
-&amp; = \sum_{n=1}^N (\sum_{j=0}^M w_j x_n^{j} - t_n)x_n^i + \lambda w_i \tag{ii} \\
-&amp; = \sum_{n=1}^N (\sum_{j=0}^M w_j x_n^{i}x_n^j - t_n x_n^i) + \lambda w_i \tag{iii} \\
-&amp; = \sum_{n=1}^N (\sum_{j=0}^M w_j x_n^{(i+j)} - t_n x_n^i) + \lambda w_i \tag{iv}
-\end{align}\]</span></p>
-<blockquote class="blockquote">
-<ul>
-<li><p><span class="math inline">\((\text{i}) - (\text{ii})\)</span>: definition of <span class="math inline">\(y(x_n, \mathbf{w})\)</span> and <span class="math inline">\(\frac{\lambda}{2} \cdot 2 = \lambda\)</span>.</p></li>
-<li><p><span class="math inline">\((\text{ii})-(\text{iii})\)</span>: distribute <span class="math inline">\(x_n^i\)</span> into the parentheses.</p></li>
-<li><p><span class="math inline">\((\text{iii})-(\text{iv})\)</span>: exponent rule. <!------------------------------------></p></li>
-</ul>
-</blockquote>
-<p>Setting the derivative to <span class="math inline">\(0\)</span> and rearranging,</p>
+<p><span class="math display">\[
+\begin{aligned}
+\frac{\partial \overset{\sim}{E}(\mathbf{w})}{\partial w_i} &amp; = \sum_{n=1}^N \{y(x_n, \mathbf{w}) - t_n \} x_n^i + \frac{\lambda}{2} 2 w_i \\
+&amp; \overset{(i)}{=} \sum_{n=1}^N (\sum_{j=0}^M w_j x_n^{j} - t_n)x_n^i + \lambda w_i  \\
+&amp; \overset{(ii)}{=} \sum_{n=1}^N (\sum_{j=0}^M w_j x_n^{i}x_n^j - t_n x_n^i) + \lambda w_i  \\
+&amp; \overset{(iii)}{=} \sum_{n=1}^N (\sum_{j=0}^M w_j x_n^{(i+j)} - t_n x_n^i) + \lambda w_i
+\end{aligned}
+\]</span></p>
+<p>where in <span class="math inline">\((\text{i})\)</span> we use the definition of <span class="math inline">\(y(x_n, \mathbf{w})\)</span> and <span class="math inline">\(\frac{\lambda}{2} \cdot 2 = \lambda\)</span>, in <span class="math inline">\((\text{ii})\)</span> we distribute <span class="math inline">\(x_n^i\)</span> into the parentheses, and in <span class="math inline">\((\text{iii})\)</span> we use the exponent rule. Setting the derivative to <span class="math inline">\(0\)</span> and rearranging,</p>
 <p><span class="math display">\[
 \begin{aligned}
 \sum_{n=1}^N (\sum_{j=0}^M w_j x_n^{(i+j)} - t_n x_n^i) + \lambda w_i &amp; = 0 \\
