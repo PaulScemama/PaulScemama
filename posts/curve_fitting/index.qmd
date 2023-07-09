@@ -334,37 +334,120 @@ $\blacksquare$
 ```python
 import numpy as np
 import matplotlib.pyplot as plt
+from typing import Callable, List, Union, Tuple
 
+# ================ Generating Data ==================== #
+def generate_data(
+    seed: int,
+    signal_fn: Callable,
+    noise: float,
+    num_samples: int,
+    range: List[float],
+    include_signal: bool = False,
+    plot: bool = False,
+) -> Union[Tuple[Tuple[np.ndarray]], Tuple[np.ndarray]]:
+    """
+    Generate noisy training data and the non-noisy data.
+
+    Parameters
+    ----------
+    seed : int
+        Seed for reproducibility.
+    signal_fn : Callable
+        A function describing the deterministic data generating process.
+    noise : float
+        The `scale` value for the Gaussian noise to be added.
+    num_samples : int
+        Number of training samples.
+    range : List[float]
+        Range of the input variable x.
+    plot : bool, optional
+        Whether to plot the data or not, by default False
+
+    Returns
+    -------
+    Union[Tuple[Tuple[np.ndarray]], Tuple[np.ndarray]]
+        If include_signal = True, two tuples where the first is the noisy
+        training data and the second is the underlying signal. If include_signal=False,
+        then a tuple with just the noisy training data.
+    """
+    # Create generator for reproducible results
+    generator = np.random.default_rng(seed)
+    # Noisy signal
+    signal_noisy_fn = lambda xs: signal_fn(xs) + generator.normal(
+        loc=0, scale=noise, size=(num_samples,)
+    )
+    # Create training data
+    xs = np.linspace(start=range[0], stop=range[1], num=num_samples)
+    ts = signal_noisy_fn(xs)
+    if include_signal:
+        # Create "signal"
+        x_axis = np.linspace(start=0, stop=1, num=1000)
+        signal = signal_fn(x_axis)
+        to_return = ((xs, ts), (x_axis, signal))
+    else:
+        to_return = (xs, ts)
+    if plot:
+        # ===== Plot Data ====== #
+        # Create figure
+        figure1 = plt.figure(figsize=(8, 4))
+        plt.axis("off")
+        # Plot Signal
+        line = np.linspace(start=0, stop=1, num=1000)
+        plt.plot(x_axis, signal, c="green")
+        # Plot training data
+        plt.scatter(xs, ts, c="black")
+        plt.show()
+    return to_return
+
+# ============= Solving for w ====================== #
 def create_A(xs: np.array, M: int) -> np.array:
     """
     Create the matrix A where A_ij = sum_n=1^N [x_n^(i+j)].
     """
     A = np.zeros((M, M))
-    # For each cell
     for i in range(M):
         for j in range(M):
-            A[i][j] = np.sum(xs**(i+j))
+            A[i][j] = np.sum(xs ** (i + j))
     return A
+
 
 def create_T(xs: np.array, ts: np.array, M: int) -> np.array:
     """
     Create the vector T where T_i = sum_n=1^N (x_n^i) t_n.
     """
     T = np.zeros((M,))
-    # For each row 
     for i in range(M):
-        T[i] = np.sum((xs ** i) * ts)
+        T[i] = np.sum((xs**i) * ts)
     return T
 
-def get_w(xs: np.array, ts: np.array, M: int) -> np.array:
+
+def create_lambdaI(size: int, ln_lambda: float) -> np.array:
     """
-    Creates A and T using `create_A` and `create_T` and then solves 
+    Create an identity matrix with lambda as the diagonal elements.
+    """
+    lambda_ = np.exp(ln_lambda)
+    identity = np.eye(N=size)
+    return lambda_ * identity
+
+
+def solve_for_w(
+    xs: np.array, ts: np.array, M: int, ln_lambda: float = None
+) -> np.array:
+    """
+    Creates A and T using `create_A` and `create_T` and then solves
     the linear system of equations to get w.
     """
     A = create_A(xs=xs, M=M)
     T = create_T(xs=xs, ts=ts, M=M)
-    return np.linalg.solve(a=A, b=T)
+    if ln_lambda:
+        lambdaI = create_lambdaI(size=M, ln_lambda=ln_lambda)
+        A_plus_lambdaI = A + lambdaI
+        return np.linalg.solve(a=A_plus_lambdaI, b=T)
+    else:
+        return np.linalg.solve(a=A, b=T)
 
+# ============== Prediction ====================== #
 def predict(w: np.array, x: np.array, M) -> np.array:
     """
     Feature expand the input x and then run the linear
@@ -372,17 +455,44 @@ def predict(w: np.array, x: np.array, M) -> np.array:
     """
     # Get [x**1, x**2, x**3 ... x**M] for each x
     N = x.shape[0]
-    powers = np.arange(0, M )
+    powers = np.arange(0, M)
     powers_expanded = np.tile(powers, (N,)).reshape(N, M)
     xs_expanded = x.repeat(M).reshape(N, M)
     xs_powered = np.power(xs_expanded, powers_expanded)
-
     # Apply w
     return w @ xs_powered.T
-```
-![Signal (green) and training data (black).](./img/code_signal_and_data.png){width=500}
 
-![Signal (green), training data (black), and fitted curves (blue) for various settings of M -- the order of the polynomial.](./img/code_results_for_various_M.png){width=500}
+# ========== Main =========== #
+(xs, ts), (x_axis, signal_values) = generate_data(
+    seed=123,
+    signal_fn=lambda x: np.sin(2 * np.pi * x),
+    noise=0.5,
+    num_samples=20,
+    range=[0, 1],
+    include_signal=True,
+    plot=False,
+)
+
+figure = plt.figure(figsize=(8, 8))
+cols, rows = 2, 4
+for i in range(1, cols * rows + 1):
+    M = i + 1
+    w = solve_for_w(xs=xs, ts=ts, M=M)
+    t_hats = predict(w, x_axis, M)
+    figure.add_subplot(rows, cols, i)
+    plt.axis("off")
+    plt.title(f"M = {M}")
+    # Plot signal
+    plt.plot(x_axis, signal_values, label="Signal", c="green")
+    # Plot data
+    plt.scatter(xs, ts, s=3, label="Data", c="black")
+    # Plot predictions
+    plt.plot(x_axis, t_hats, label="Predicted Signal")
+plt.show()
+
+```
+
+![Signal (green), training data (black), and fitted curves (blue) for various settings of M -- the order of the polynomial.](./img/mle_w.png){width=500}
 
 
 ## 2 Solving for the parameters with a penalty term
@@ -444,56 +554,95 @@ $\blacksquare$
 #### **2.2 Code**
 
 ```python
-# ===== Reproducibility ====== #
-# Create generator for reproducible resutls
-seed = 123
-generator = np.random.default_rng(seed)
+import numpy as np
+import matplotlib.pyplot as plt
+from typing import Callable, List, Union, Tuple
 
-# ===== Data Generation ======= #
-# N = num datapoints; M = order of polynomial
-N = 20
-# Create signal and noisy signal
-signal_fn = lambda x: np.sin(x) 
-signal_noisy_fn = lambda xs: signal_fn(xs) + generator.normal(loc=0, scale=0.5, size=(N,),)
-# Create training data
-xs = np.linspace(start=0, stop=5, num=N)
-ts = signal_noisy_fn(xs)
-# Create "signal" 
-x_axis = np.linspace(start=0, stop=5, num=1000)
-signal = signal_fn(x_axis)
+# ================ Generating Data ==================== #
+def generate_data(
+    seed: int,
+    signal_fn: Callable,
+    noise: float,
+    num_samples: int,
+    range: List[float],
+    include_signal: bool = False,
+    plot: bool = False,
+) -> Union[Tuple[Tuple[np.ndarray]], Tuple[np.ndarray]]:
+    """
+    Generate noisy training data and the non-noisy data.
 
-# ===== Plot Data ====== #
-# Create figure
-figure1 = plt.figure(figsize=(8, 4))
-plt.axis("off")
-# Plot Signal
-line = np.linspace(start=0, stop=5, num=1000)
-plt.plot(x_axis, signal, c="green")
-# Plot training data
-plt.scatter(xs, ts, c="black")
-plt.show()
+    Parameters
+    ----------
+    seed : int
+        Seed for reproducibility.
+    signal_fn : Callable
+        A function describing the deterministic data generating process.
+    noise : float
+        The `scale` value for the Gaussian noise to be added.
+    num_samples : int
+        Number of training samples.
+    range : List[float]
+        Range of the input variable x.
+    plot : bool, optional
+        Whether to plot the data or not, by default False
 
-# ======= Functions to get W and Predict ====== #
+    Returns
+    -------
+    Union[Tuple[Tuple[np.ndarray]], Tuple[np.ndarray]]
+        If include_signal = True, two tuples where the first is the noisy
+        training data and the second is the underlying signal. If include_signal=False,
+        then a tuple with just the noisy training data.
+    """
+    # Create generator for reproducible results
+    generator = np.random.default_rng(seed)
+    # Noisy signal
+    signal_noisy_fn = lambda xs: signal_fn(xs) + generator.normal(
+        loc=0, scale=noise, size=(num_samples,)
+    )
+    # Create training data
+    xs = np.linspace(start=range[0], stop=range[1], num=num_samples)
+    ts = signal_noisy_fn(xs)
+    if include_signal:
+        # Create "signal"
+        x_axis = np.linspace(start=0, stop=1, num=1000)
+        signal = signal_fn(x_axis)
+        to_return = ((xs, ts), (x_axis, signal))
+    else:
+        to_return = (xs, ts)
+    if plot:
+        # ===== Plot Data ====== #
+        # Create figure
+        figure1 = plt.figure(figsize=(8, 4))
+        plt.axis("off")
+        # Plot Signal
+        line = np.linspace(start=0, stop=1, num=1000)
+        plt.plot(x_axis, signal, c="green")
+        # Plot training data
+        plt.scatter(xs, ts, c="black")
+        plt.show()
+    return to_return
+
+# ============= Solving for w ====================== #
 def create_A(xs: np.array, M: int) -> np.array:
     """
     Create the matrix A where A_ij = sum_n=1^N [x_n^(i+j)].
     """
     A = np.zeros((M, M))
-    # For each cell
     for i in range(M):
         for j in range(M):
-            A[i][j] = np.sum(xs**(i+j))
+            A[i][j] = np.sum(xs ** (i + j))
     return A
+
 
 def create_T(xs: np.array, ts: np.array, M: int) -> np.array:
     """
     Create the vector T where T_i = sum_n=1^N (x_n^i) t_n.
     """
     T = np.zeros((M,))
-    # For each row 
     for i in range(M):
-        T[i] = np.sum((xs ** i) * ts)
+        T[i] = np.sum((xs**i) * ts)
     return T
+
 
 def create_lambdaI(size: int, ln_lambda: float) -> np.array:
     """
@@ -503,17 +652,24 @@ def create_lambdaI(size: int, ln_lambda: float) -> np.array:
     identity = np.eye(N=size)
     return lambda_ * identity
 
-def get_w(xs: np.array, ts: np.array, M: int, ln_lambda: float) -> np.array:
+
+def solve_for_w(
+    xs: np.array, ts: np.array, M: int, ln_lambda: float = None
+) -> np.array:
     """
-    Creates A and T using `create_A` and `create_T` and then solves 
+    Creates A and T using `create_A` and `create_T` and then solves
     the linear system of equations to get w.
     """
     A = create_A(xs=xs, M=M)
-    lambdaI = create_lambdaI(size=M, ln_lambda=ln_lambda)
-    A_plus_lambdaI = A + lambdaI
     T = create_T(xs=xs, ts=ts, M=M)
-    return np.linalg.solve(a=A_plus_lambdaI, b=T)
+    if ln_lambda:
+        lambdaI = create_lambdaI(size=M, ln_lambda=ln_lambda)
+        A_plus_lambdaI = A + lambdaI
+        return np.linalg.solve(a=A_plus_lambdaI, b=T)
+    else:
+        return np.linalg.solve(a=A, b=T)
 
+# ============== Prediction ====================== #
 def predict(w: np.array, x: np.array, M) -> np.array:
     """
     Feature expand the input x and then run the linear
@@ -521,38 +677,41 @@ def predict(w: np.array, x: np.array, M) -> np.array:
     """
     # Get [x**1, x**2, x**3 ... x**M] for each x
     N = x.shape[0]
-    powers = np.arange(0, M )
+    powers = np.arange(0, M)
     powers_expanded = np.tile(powers, (N,)).reshape(N, M)
     xs_expanded = x.repeat(M).reshape(N, M)
     xs_powered = np.power(xs_expanded, powers_expanded)
     # Apply w
     return w @ xs_powered.T
 
+# ============= Main ================== #
+(xs, ts), (x_axis, signal_values) = generate_data(
+    seed=123,
+    signal_fn=lambda x: np.sin(2 * np.pi * x),
+    noise=0.5,
+    num_samples=20,
+    range=[0, 1],
+    include_signal=False,
+    plot=True,
+)
 
-# ======== Find W, Predict, and Plot for various M ======= #
 figure = plt.figure(figsize=(8, 8))
 cols, rows = 2, 4
 for i in range(1, cols * rows + 1):
     M = i + 1
-    w = get_w(
-        xs=xs,
-        ts=ts,
-        M=M,
-        ln_lambda=0,
-    )
-    t_hats = predict(w, line, M)
+    w = solve_for_w(xs=xs, ts=ts, M=M, ln_lambda=-8)
+    t_hats = predict(w, x_axis, M)
     figure.add_subplot(rows, cols, i)
     plt.axis("off")
     plt.title(f"M = {M}")
     # Plot signal
-    plt.plot(line, signal_fn(line), label="Signal", c="green")
+    plt.plot(x_axis, signal_values, label="Signal", c="green")
     # Plot data
-    plt.scatter(xs, ts, s = 3, label="Data", c="black")
+    plt.scatter(xs, ts, s=3, label="Data", c="black")
     # Plot predictions
-    plt.plot(line, t_hats, label="Predicted Signal")
+    plt.plot(x_axis, t_hats, label="Predicted Signal")
 plt.show()
+
 ```
 
-![Signal (green) and training data (black).](./img/code_signal_and_data.png){width=500}
-
-![Signal (green), training data (black), and fitted curves (blue) for various settings of M -- the order of the polynomial, but with with regularization governed by $\text{ln } \lambda = 0$.](./img/code_results_for_various_M_reg.png){width=500}
+![Signal (green), training data (black), and fitted curves (blue) for various settings of M -- the order of the polynomial, but with with regularization governed by $\text{ln } \lambda = 0$.](./img/map_w.png){width=500}
