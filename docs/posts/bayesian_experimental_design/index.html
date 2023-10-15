@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Paul’s Website - Stuff</title>
+<title>Paul’s Website - Bayesian Experimental Design</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,27 +20,44 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-listing/list.min.js"></script>
-<script src="site_libs/quarto-listing/quarto-listing.js"></script>
-<script src="site_libs/quarto-html/quarto.js"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="dark">
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -62,39 +79,17 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 <script>
-
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-listing .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
-
-    const options = {
-      valueNames: ['listing-title','listing-author','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
-      
-      searchColumns: ["listing-title","listing-author","listing-image","listing-description","listing-categories"],
+    MathJax = {
+      tex: {
+        tags: 'ams'  // should be 'ams', 'none', or 'all'
+      }
     };
-
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
   </script>
 
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="../../styles.css">
 </head>
 
 <body class="nav-fixed">
@@ -104,7 +99,7 @@ ul.task-list li input[type="checkbox"] {
     <nav class="navbar navbar-expand-lg navbar-dark ">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container">
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">Paul’s Website</span>
     </a>
   </div>
@@ -115,7 +110,7 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./about.html" rel="" target="">
+    <a class="nav-link" href="../../about.html" rel="" target="">
  <span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item compact">
@@ -138,8 +133,8 @@ ul.task-list li input[type="checkbox"] {
 <!-- content -->
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
-    <div class="quarto-title column-page-left">
-      <h1 class="title">Stuff</h1>
+    <div class="quarto-title column-body">
+      <h1 class="title">Bayesian Experimental Design</h1>
                       </div>
   </div>
     
@@ -152,71 +147,74 @@ ul.task-list li input[type="checkbox"] {
     </div>
     
   
-  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(2)</span></div></div></div>
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#preface" id="toc-preface" class="nav-link active" data-scroll-target="#preface">Preface</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction">1 Introduction</a></li>
+  <li><a href="#mathematical-notation" id="toc-mathematical-notation" class="nav-link" data-scroll-target="#mathematical-notation">2 Mathematical Notation</a></li>
+  <li><a href="#choosing-designs-inputs" id="toc-choosing-designs-inputs" class="nav-link" data-scroll-target="#choosing-designs-inputs">3 Choosing designs (inputs)</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+</nav>
+    </div>
 <!-- main -->
-<main class="content quarto-banner-title-block column-page-left" id="quarto-document-content">
+<main class="content quarto-banner-title-block" id="quarto-document-content">
 
 
 
 
+<section id="preface" class="level1">
+<h1>Preface</h1>
+<p>The goal of this post is to introduce the field of <em>Bayesian experimental design</em>. Bayesian experimental design contains popular subfields such as <em>active learning</em> and <em>Bayesian optimization</em>. I try and explan how these two subfields fit into the broader context of experimental design, and introduce notation as well as some important examples.</p>
+</section>
+<section id="introduction" class="level1">
+<h1>1 Introduction</h1>
+<p>The context of experimental design is as follows: We have an unknown (hidden) process that we can <em>sample from</em>. We can think of “sampling from” as evaluating a function at some input points, or running an experiment for some configuration. We get to choose what to <em>feed</em> the black-box function (i.e.&nbsp;how to design the experiment) and this results in data (i.e.&nbsp;outcome of the experiment). We call the space of inputs that we can feed to the function (i.e.&nbsp;the space of configurations of an experiment) the <em>design space</em>, We want to <em>intelligently choose</em> what inputs (designs) to <em>feed</em> the function in order attain <em>some goal</em>. The reason we need to choose <em>intelligently</em> is that each “query” (i.e.&nbsp;evaluation of the function, i.e.&nbsp;experiment) is <em>costly</em>.</p>
+<p>Bayesian experimental design is about intelligent probing of an unknown (black-box) function in order to elicit information that is useful for <em>some goal</em> we have in mind (<span class="citation" data-cites="ivanova2021">Ivanova (<a href="#ref-ivanova2021" role="doc-biblioref">2021</a>)</span>). <em>What that goal is</em> determines a particular sub-field of Bayesian experimental design.</p>
+<ul>
+<li><p><strong>Bayesian optimization</strong>: sample from the unknown function to <em>optimize that function</em> (<span class="citation" data-cites="garrett2023">Garrett (<a href="#ref-garrett2023" role="doc-biblioref">2023</a>)</span>). Then we have inputs that try and maximize this unknown function and we can elicit responses that we want by feeding the unknown function these inputs. For example, we want to find the hyper-parameters that result in the best validation accuracy. In this scenario, the design space is usually a finite set of inputs.</p></li>
+<li><p><strong>Active learning</strong>: sample from the unknown function to <em>learn that function</em>. Then we have learned the unknown function to make predictions with; and if we’ve sampled <em>smartly</em>, we can learn a predictor efficiently. In this scenario, the design space is usually a pool of unlabelled data.</p></li>
+</ul>
+</section>
+<section id="mathematical-notation" class="level1">
+<h1>2 Mathematical Notation</h1>
+<p>While there are numerous ways to denote the aspects of Bayesian experimental design, we use a common one (see <span class="citation" data-cites="ivanova2021">Ivanova (<a href="#ref-ivanova2021" role="doc-biblioref">2021</a>)</span>).</p>
+<ul>
+<li>The design of an experiment (i.e.&nbsp;the inputs): <span class="math inline">\(\delta\)</span></li>
+<li>The <em>true</em> underlying (random) process is a distribution over outcomes <span class="math inline">\(y\)</span> given a design (input) <span class="math inline">\(\delta\)</span>: <span class="math inline">\(p^{*}(y|\delta)\)</span></li>
+<li>Our <em>model</em> of the underlying process: <span class="math inline">\(p(y, \theta |\delta) = p(y|\theta, \delta)p(\theta)\)</span>.</li>
+</ul>
+<p>While the <em>modeling</em> itself (e.g.&nbsp;choosing a form for <span class="math inline">\(p(y|\theta, \delta)\)</span> and <span class="math inline">\(p(\theta)\)</span>) is an important aspect of Bayesian experimental design, we usually treat them as given once they are chosen, and instead focus on choosing designs <span class="math inline">\(\delta\)</span> that bring us closer to our goals in the most efficient way possible.</p>
+</section>
+<section id="choosing-designs-inputs" class="level1">
+<h1>3 Choosing designs (inputs)</h1>
+<p>There are a few parts to choosing designs <span class="math inline">\(\delta\)</span> that bring us closer to our goals. The first is sometimes called building a <em>policy</em> (<span class="citation" data-cites="garrett2023">Garrett (<a href="#ref-garrett2023" role="doc-biblioref">2023</a>)</span>).</p>
+<ul>
+<li>A <em>policy</em> transforms our beliefs (captured in our model) into choosing designs (inputs) in order to bring us closer to our goals.</li>
+</ul>
+<p>A common approach to building a policy is to appeal to <em>Bayesian decision theory</em>, where we design a <em>utility function</em> that quantifies how useful a given set of experimental outcomes <em>would be</em>. The <em>model</em> summarizes our beliefs about experimental outcomes (i.e.&nbsp;what is the outcome of <span class="math inline">\(p(y|\theta, \delta)\)</span> for a design <span class="math inline">\(\delta\)</span>?), and the policy summarizes our <em>preferences</em> (<span class="citation" data-cites="garrett2023">Garrett (<a href="#ref-garrett2023" role="doc-biblioref">2023</a>)</span>).</p>
+</section>
+<section id="references" class="level1">
+<h1>References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-garrett2023" class="csl-entry" role="listitem">
+Garrett, Roman. 2023. <span>“Bayesian Optimization.”</span> <a href="https://www.youtube.com/watch?v=wZODGJzKmD0" class="uri">https://www.youtube.com/watch?v=wZODGJzKmD0</a>.
+</div>
+<div id="ref-ivanova2021" class="csl-entry" role="listitem">
+Ivanova, R. Desi. 2021. <span>“Introduction to Bayesian Optimal Experimental Design.”</span> <a href="https://desirivanova.com/post/boed-intro/" class="uri">https://desirivanova.com/post/boed-intro/</a>.
+</div>
+</div>
 
 
+</section>
 
-
-<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
-<div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-listing-file-modified-sort="1697398021301" data-listing-reading-time-sort="3">
-<div class="thumbnail">
-<p><a href="./posts/bayesian_experimental_design/index.html"> <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div> </a></p>
-</div>
-<div class="body">
-<a href="./posts/bayesian_experimental_design/index.html">
-<h3 class="no-anchor listing-title">
-Bayesian Experimental Design
-</h3>
-<div class="listing-subtitle">
-
-</div>
-<div class="listing-description">
-The goal of this post is to introduce the field of <em>Bayesian experimental design</em>. Bayesian experimental design contains popular subfields such as <em>active learning</em> and <em>Bayesian…</em>
-</div>
-</a>
-</div>
-<div class="metadata">
-<a href="./posts/bayesian_experimental_design/index.html"> </a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="1" data-listing-file-modified-sort="1697397493385" data-listing-reading-time-sort="32">
-<div class="thumbnail">
-<p><a href="./posts/curve_fitting/index.html"> <p class="card-img-top"><img src="posts/curve_fitting/img/sum_of_squares.png"  class="thumbnail-image card-img"/></p> </a></p>
-</div>
-<div class="body">
-<a href="./posts/curve_fitting/index.html">
-<h3 class="no-anchor listing-title">
-Approaches to Curve Fitting
-</h3>
-<div class="listing-subtitle">
-
-</div>
-<div class="listing-description">
-This post aims to introduce different approaches to curve fitting, and in particular, different <em>parametric</em> approa…<em></em><span class="citation" data-cites="bishop2006pattern"></span><span class="citation" data-cites="tipping2003bayesian"></span>
-</div>
-</a>
-</div>
-<div class="metadata">
-<a href="./posts/curve_fitting/index.html"> </a>
-</div>
-</div>
-</div>
-<div class="listing-no-matching d-none">
-No matching items
-</div>
-</div></main> <!-- /main -->
+</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {

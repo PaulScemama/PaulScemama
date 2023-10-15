@@ -54,7 +54,26 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
@@ -203,7 +222,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="preface" class="level1">
 <h1>Preface</h1>
-<p>This post aims to introduce different approaches to curve fitting, and in particular, different <em>parametric</em> approaches to curve fitting. It follows closely section 1.2.5 from Bishop’s <em>Pattern Recognition and Machine Learning</em>, where I expand on some of the more vague concepts introduced. The goal is to see how incorporating particular assumptions into the probabilistic model leads to instances of deterministic approaches. Finally, the Appendix contains some extra derivations and code to “actually do” the curve fitting.</p>
+<p>This post aims to introduce different approaches to curve fitting, and in particular, different <em>parametric</em> approaches to curve fitting. It follows closely section 1.2.5 from Bishop’s <em>Pattern Recognition and Machine Learning</em> (<span class="citation" data-cites="bishop2006pattern">Bishop and Nasrabadi (<a href="#ref-bishop2006pattern" role="doc-biblioref">2006</a>)</span>), where I expand on some of the more vague concepts introduced. Additionally, (<span class="citation" data-cites="tipping2003bayesian">Tipping (<a href="#ref-tipping2003bayesian" role="doc-biblioref">2003</a>)</span>) is a good resource and has some nicer visualizations regarding the sampling of priors and posteriors. The goal is to see how incorporating particular assumptions into the probabilistic model leads to instances of deterministic approaches. Finally, the Appendix contains some extra derivations and code to “actually do” the curve fitting.</p>
 </section>
 <section id="introduction" class="level1">
 <h1>1 Introduction</h1>
@@ -413,8 +432,14 @@ p(t|x, \pmb{\mathsf{x}}, \pmb{\mathsf{t}}) = \mathcal{N}(t|m(x), s^2(x)), \tag{3
 </section>
 <section id="references" class="level1">
 <h1>References</h1>
-<p><a href="https://www.microsoft.com/en-us/research/uploads/prod/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf"><em>Pattern Recognition and Machine Learning</em></a>, <strong>Christopher M. Bishop</strong>, 2006</p>
-<p><a href="https://www.miketipping.com/papers/met-mlbayes.pdf"><em>Bayesian Inference: An Introduction to Principles and Practice in Machine Learning</em></a> <strong>Michael E. Tipping</strong>, 2004</p>
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-bishop2006pattern" class="csl-entry" role="listitem">
+Bishop, Christopher M, and Nasser M Nasrabadi. 2006. <em>Pattern Recognition and Machine Learning</em>. Vol. 4. 4. Springer.
+</div>
+<div id="ref-tipping2003bayesian" class="csl-entry" role="listitem">
+Tipping, Michael E. 2003. <span>“Bayesian Inference: An Introduction to Principles and Practice in Machine Learning.”</span> In <em>Summer School on Machine Learning</em>, 41–62. Springer.
+</div>
+</div>
 </section>
 <section id="appendix" class="level1">
 <h1>Appendix</h1>

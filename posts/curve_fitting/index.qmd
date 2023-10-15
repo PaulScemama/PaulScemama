@@ -7,11 +7,12 @@ theme: darkly
 # fontsize: 0.875em
 max-width: 10em
 toc: true
+bibliography: references.bib
 ---
 
 # Preface
 
-This post aims to introduce different approaches to curve fitting, and in particular, different *parametric* approaches to curve fitting. It follows closely section 1.2.5 from Bishop's *Pattern Recognition and Machine Learning*, where I expand on some of the more vague concepts introduced. The goal is to see how incorporating particular assumptions into the probabilistic model leads to instances of deterministic approaches. Finally, the Appendix contains some extra derivations and code to "actually do" the curve fitting. 
+This post aims to introduce different approaches to curve fitting, and in particular, different *parametric* approaches to curve fitting. It follows closely section 1.2.5 from Bishop's *Pattern Recognition and Machine Learning* (@bishop2006pattern), where I expand on some of the more vague concepts introduced. Additionally, (@tipping2003bayesian) is a good resource and has some nicer visualizations regarding the sampling of priors and posteriors. The goal is to see how incorporating particular assumptions into the probabilistic model leads to instances of deterministic approaches. Finally, the Appendix contains some extra derivations and code to "actually do" the curve fitting. 
 
 # 1 Introduction
 
@@ -272,9 +273,8 @@ where $\mathbf{I}$ is the unit matrix, and we have defined the vector $\pmb{\phi
 
 # References
 
-[*Pattern Recognition and Machine Learning*](https://www.microsoft.com/en-us/research/uploads/prod/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf), **Christopher M. Bishop**, 2006
-
-[*Bayesian Inference: An Introduction to Principles and Practice in Machine Learning*](https://www.miketipping.com/papers/met-mlbayes.pdf) **Michael E. Tipping**, 2004
+::: {#refs}
+:::
 
 # Appendix
 

@@ -1,0 +1,52 @@
+---
+title: "Bayesian Experimental Design"
+format: 
+  html:
+    include-in-header: mathjax.html
+theme: darkly
+# fontsize: 0.875em
+max-width: 10em
+toc: true
+bibliography: references.bib
+---
+
+
+# Preface
+
+The goal of this post is to introduce the field of *Bayesian experimental design*. Bayesian experimental design contains popular subfields such as *active learning* and *Bayesian optimization*. I try and explan how these two subfields fit into the broader context of experimental design, and introduce notation as well as some important examples. 
+
+
+# 1 Introduction 
+
+The context of experimental design is as follows: We have an unknown (hidden) process that we can *sample from*. We can think of "sampling from" as evaluating a function at some input points, or running an experiment for some configuration. We get to choose what to *feed* the black-box function (i.e. how to design the experiment) and this results in data (i.e. outcome of the experiment). We call the space of inputs that we can feed to the function (i.e. the space of configurations of an experiment) the *design space*, We want to *intelligently choose* what inputs (designs) to *feed* the function in order attain *some goal*. The reason we need to choose *intelligently* is that each "query" (i.e. evaluation of the function, i.e. experiment) is *costly*.
+
+Bayesian experimental design is about intelligent probing of an unknown (black-box) function in order to elicit information that is useful for *some goal* we have in mind (@ivanova2021). *What that goal is* determines a particular sub-field of Bayesian experimental design.
+
+- **Bayesian optimization**: sample from the unknown function to *optimize that function* (@garrett2023). Then we have inputs that try and maximize this unknown function and we can elicit responses that we want by feeding the unknown function these inputs. For example, we want to find the hyper-parameters that result in the best validation accuracy. In this scenario, the design space is usually a finite set of inputs.
+
+- **Active learning**: sample from the unknown function to *learn that function*. Then we have learned the unknown function to make predictions with; and if we've sampled *smartly*, we can learn a predictor efficiently. In this scenario, the design space is usually a pool of unlabelled data. 
+
+
+# 2 Mathematical Notation
+While there are numerous ways to denote the aspects of Bayesian experimental design, we use a common one (see @ivanova2021). 
+
+- The design of an experiment (i.e. the inputs): $\delta$
+- The *true* underlying (random) process is a distribution over outcomes $y$ given a design (input) $\delta$: $p^{*}(y|\delta)$
+- Our *model* of the underlying process: $p(y, \theta |\delta) = p(y|\theta, \delta)p(\theta)$. 
+
+While the *modeling* itself (e.g. choosing a form for $p(y|\theta, \delta)$ and $p(\theta)$) is an important aspect of Bayesian experimental design, we usually treat them as given once they are chosen, and instead focus on choosing designs $\delta$ that bring us closer to our goals in the most efficient way possible.
+
+
+# 3 Choosing designs (inputs)
+There are a few parts to choosing designs $\delta$ that bring us closer to our goals. The first is sometimes called building a *policy* (@garrett2023). 
+
+- A *policy* transforms our beliefs (captured in our model) into choosing designs (inputs) in order to bring us closer to our goals.
+
+A common approach to building a policy is to appeal to *Bayesian decision theory*, where we design a *utility function* that quantifies how useful a given set of experimental outcomes *would be*. The *model* summarizes our beliefs about experimental outcomes (i.e. what is the outcome of $p(y|\theta, \delta)$ for a design $\delta$?), and the policy summarizes our *preferences* (@garrett2023).
+
+
+
+# References
+
+::: {#refs}
+:::

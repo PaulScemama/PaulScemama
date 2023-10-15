@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/bayesian_experimental_design/index.html",
       "/posts/curve_fitting/index.html"
     ]
   }
