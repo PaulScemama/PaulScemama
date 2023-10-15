@@ -3,8 +3,8 @@ title: "Approaches to Curve Fitting"
 format: 
   html:
     include-in-header: mathjax.html
-theme: cosmo
-fontsize: 0.875em
+theme: darkly
+# fontsize: 0.875em
 max-width: 10em
 toc: true
 ---

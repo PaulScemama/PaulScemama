@@ -1,5 +1,5 @@
 ---
-title: "Paul Scemama"
+title: "Stuff"
 listing:
   contents: posts
   sort: "date desc"
