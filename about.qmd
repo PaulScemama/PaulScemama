@@ -16,4 +16,4 @@ about:
 
 ---
 
-My name is Paul Scemama. I am a Machine Learning Engineer at MITRE. I'm interested in Bayesian machine learning and deep learning, uncertainty quantification, and software design. This is a place to post some of my technical notes and get feedback. 
+My name is Paul Scemama. I am a Machine Learning Engineer at MITRE. I'm interested in scalable uncertainty quantification, Bayesian experimental design, and program design. 
