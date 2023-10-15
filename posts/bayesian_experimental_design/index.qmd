@@ -45,6 +45,8 @@ There are a few parts to choosing designs $\delta$ that bring us closer to our g
 A common approach to building a policy is to appeal to *Bayesian decision theory*, where we design a *utility function* that quantifies how useful a given set of experimental outcomes *would be*. The *model* summarizes our beliefs about experimental outcomes (i.e. what is the outcome of $p(y|\theta, \delta)$ for a design $\delta$?), and the policy summarizes our *preferences* (@garrett2023).
 
 
+# To be continued...
+
 
 # References
 
